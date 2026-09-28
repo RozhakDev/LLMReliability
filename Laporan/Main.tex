@@ -1,0 +1,98 @@
+%% Template Tugas Akhir Fakultas Informatika, Telkom University
+%% Dibuat oleh: Dr. Putu Harry Gunawan
+%% Diedit oleh: Gia S. Wulandari (2023), Amalia Beladinna Arifa (2025)
+
+\documentclass[a4paper,12pt,oneside]{book}
+\input{Pengaturan/PengaturanFormat.tex}
+\input{Pengaturan/DataIdentitas.tex}
+
+\begin{document}
+
+% ------------------------------------------------------------------------------
+% Bagian Awal
+% ------------------------------------------------------------------------------
+\pagenumbering{roman} 
+
+% Sampul
+\thispagestyle{empty}
+\pdfbookmark{SAMPUL}{ }
+\include{BagianAwal/Sampul}
+\cleardoublepage
+
+% Lembar Pengesahan
+\pdfbookmark{LEMBAR PENGESAHAN}{ }
+\addcontentsline{toc}{chapter}{LEMBAR PENGESAHAN}
+\include{BagianAwal/LembarPengesahan}
+\cleardoublepage
+
+% Lembar Orisinalitas
+\pdfbookmark{LEMBAR ORISINALITAS}{ }
+\addcontentsline{toc}{chapter}{LEMBAR ORISINALITAS}
+\include{BagianAwal/LembarOrisinalitas}
+\cleardoublepage
+
+% Abstrak Indonesia
+\phantomsection
+\addcontentsline{toc}{chapter}{ABSTRAK}
+\include{BagianAwal/Abstrak}
+\cleardoublepage
+
+% Abstract Inggris
+\pdfbookmark{ABSTRACT}{ }
+\addcontentsline{toc}{chapter}{ABSTRACT}
+\include{BagianAwal/Abstract}
+\cleardoublepage
+
+% Kata Pengantar
+\pdfbookmark{KATA PENGANTAR}{ }
+\addcontentsline{toc}{chapter}{KATA PENGANTAR}
+\include{BagianAwal/KataPengantar}
+\cleardoublepage
+
+% Daftar Isi
+\phantomsection
+\addcontentsline{toc}{chapter}{DAFTAR ISI}
+\tableofcontents
+\cleardoublepage
+
+% Daftar Gambar
+\phantomsection
+\addcontentsline{toc}{chapter}{DAFTAR GAMBAR}
+\listoffigures
+\cleardoublepage
+
+% Daftar Tabel
+\phantomsection
+\addcontentsline{toc}{chapter}{DAFTAR TABEL}
+\listoftables
+\cleardoublepage
+
+% Daftar Lampiran
+\phantomsection
+\addcontentsline{toc}{chapter}{DAFTAR LAMPIRAN}
+\listofappendices
+\cleardoublepage
+
+% ------------------------------------------------------------------------------
+% Bab Penulisan
+% ------------------------------------------------------------------------------
+\pagenumbering{arabic}
+\include{Bab/Bab1_Pendahuluan}
+\include{Bab/Bab2_KajianPustaka}
+\include{Bab/Bab3_Metodologi}
+\include{Bab/Bab4_HasilDanPembahasan}
+\include{Bab/Bab5_KesimpulanDanSaran}
+\cleardoublepage
+
+% ------------------------------------------------------------------------------
+% Daftar Pustaka dan Lampiran
+% ------------------------------------------------------------------------------
+\addcontentsline{toc}{chapter}{DAFTAR PUSTAKA}
+\bibliographystyle{ieeetr}
+\bibliography{DaftarPustaka/Referensi}
+\cleardoublepage
+
+\addcontentsline{toc}{chapter}{LAMPIRAN}
+\include{Lampiran/Lampiran}
+
+\end{document}

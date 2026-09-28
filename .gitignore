@@ -1,0 +1,87 @@
+# OS & Environment Secrets
+.DS_Store
+Thumbs.db
+desktop.ini
+.env
+.env.*
+.venv/
+venv/
+env/
+ENV/
+
+# Python & IDEs
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.vscode/
+.idea/
+.gemini/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Data & Datasets
+*.csv
+*.tsv
+*.dat
+*.jsonl
+*.parquet
+*.h5
+*.hdf5
+data/
+datasets/
+
+# Model Checkpoints, Weights, & Logs
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.bin
+*.onnx
+models/
+checkpoints/
+runs/
+wandb/
+tb_logs/
+huggingface/
+
+# LaTeX (Draft Tugas Akhir / Paper)
+*.aux
+*.bbl
+*.blg
+*.brf
+*.bcf
+*.cb
+*.cb2
+*.fdb_latexmk
+*.fls
+*.fmt
+*.gz
+*.idx
+*.ilg
+*.ind
+*.lof
+*.log
+*.lot
+*.nav
+*.out
+*.run.xml
+*.snm
+*.synctex.gz
+*.toc
+*.pdfsync
+*.vrb
+_minted*/
+*.loa
+
+# AI Agent
+.agents/
+.knowledge-base/

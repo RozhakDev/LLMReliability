@@ -1,0 +1,99 @@
+% ------------------------------------------------------------------------------
+% Package Dasar
+% ------------------------------------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage{sectsty}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{array}
+\usepackage[table]{xcolor}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[bahasa]{babel}
+\usepackage{indentfirst}
+
+% ------------------------------------------------------------------------------
+% Tata Letak Halaman
+% ------------------------------------------------------------------------------
+% Margin: kiri 4cm, kanan-atas-bawah 3cm
+\usepackage[top=3cm, bottom=3cm, left=4cm, right=3cm]{geometry}
+
+\usepackage{multirow}
+\usepackage{hhline}
+
+% ------------------------------------------------------------------------------
+% Sitasi dan Referensi
+% ------------------------------------------------------------------------------
+\usepackage{etoolbox}
+\usepackage[numbers]{natbib}
+\usepackage[bookmarks,hypertexnames=false,debug]{hyperref}
+\usepackage{bookmark}
+
+% ------------------------------------------------------------------------------
+% Penyesuaian Format Bab dan Diagram
+% ------------------------------------------------------------------------------
+\makeatletter
+\patchcmd{\@makechapterhead}{\vspace*{50\p@}}{\vspace*{0pt}}{}{}
+\patchcmd{\@makeschapterhead}{\vspace*{50\p@}}{\vspace*{0pt}}{}{}
+\makeatother
+
+\chapterfont{\centering}
+\newcommand{\bigsize}{\fontsize{16pt}{14pt}\selectfont}
+\chapterfont{\centering\bigsize\bfseries}
+\sectionfont{\large\bfseries}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows}
+
+% ------------------------------------------------------------------------------
+% Penomoran: Bab, Subbab, Persamaan, Gambar, Tabel
+% ------------------------------------------------------------------------------
+\renewcommand{\thechapter}{\Roman{chapter}}
+\renewcommand\thesection{\arabic{chapter}.\arabic{section}}
+\renewcommand\thesubsection{\thesection.\arabic{subsection}}
+\renewcommand{\theequation}{\arabic{chapter}.\arabic{equation}}
+\renewcommand{\thefigure}{\arabic{chapter}.\arabic{figure}}
+\renewcommand{\thetable}{\arabic{chapter}.\arabic{table}}
+
+% ------------------------------------------------------------------------------
+% Header dan Footer
+% ------------------------------------------------------------------------------
+\renewcommand\bibname{Daftar Pustaka}
+\addto{\captionsbahasa}{
+  \renewcommand{\bibname}{DAFTAR PUSTAKA}
+  \renewcommand{\listfigurename}{DAFTAR GAMBAR}
+  \renewcommand{\listtablename}{DAFTAR TABEL}
+  \renewcommand{\contentsname}{DAFTAR ISI}
+  \renewcommand{\chaptername}{BAB}
+}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\lhead{}
+\chead{}
+\rhead{}
+\lfoot{}
+\cfoot{\thepage}
+\rfoot{}
+\renewcommand{\headrulewidth}{0pt}
+
+% ------------------------------------------------------------------------------
+% Kustomisasi Daftar Isi
+% ------------------------------------------------------------------------------
+\usepackage[titles]{tocloft}
+\renewcommand{\cftchappresnum}{BAB }
+\settowidth{\cftchapnumwidth}{BAB VIII }
+
+% ------------------------------------------------------------------------------
+% Konfigurasi Daftar Lampiran Otomatis
+% ------------------------------------------------------------------------------
+\makeatletter
+\newcommand\listofappendices{%
+  \chapter*{DAFTAR LAMPIRAN}%
+  \@starttoc{loa}%
+}
+\newcommand\lampiran[1]{%
+  \chapter*{#1}%
+  \addcontentsline{loa}{chapter}{#1}%
+}
+\makeatother
