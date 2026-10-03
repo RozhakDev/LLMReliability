@@ -4,6 +4,9 @@ import time
 import os
 import re
 
+# Pastikan cache HuggingFace menggunakan Google Drive agar dapat di-reuse
+os.environ["HF_HOME"] = "/content/drive/MyDrive/LLMReliability/models"
+
 st.set_page_config(page_title="LLM Judge Demo", layout="wide", initial_sidebar_state="expanded")
 
 # --- CSS Styling (Glassmorphism & Premium UI) ---
@@ -258,9 +261,8 @@ else:
             st.warning("Mohon isi form teks!")
         else:
             def format_json_prompt(p_id, user_input, resp_A, resp_B):
-                base = "Bandingkan Response A dan Response B. Pilih respons yang lebih baik."
-                if p_id == "P2": base = "Bandingkan berdasarkan relevansi dan kejelasan."
-                return f"{base}\nAnda HARUS mengevaluasi berdasarkan tiga kriteria: Accuracy/Correctness, Relevance, dan Clarity. Keluarkan hasil HANYA dalam format JSON valid dengan struktur: {{\"decision\": \"A atau B\", \"criteria\": {{\"accuracy\": {{\"A\": 9, \"B\": 8}}, \"relevance\": {{\"A\": 8, \"B\": 7}}, \"clarity\": {{\"A\": 7, \"B\": 7}}}}, \"explanation\": {{\"accuracy\": \"...\", \"relevance\": \"...\", \"clarity\": \"...\"}}, \"evidence\": [{{\"criterion\": \"...\", \"candidate\": \"A\", \"evidence\": \"...\", \"assessment\": \"supported\"}}]}}\n[INPUT CONTEXT]\nInput: {user_input}\nResponse A:\n{resp_A}\nResponse B:\n{resp_B}"
+                base = "Evaluasi Response A dan Response B. Pilih respons yang lebih baik secara objektif."
+                return f"{base}\nAnda HARUS mengevaluasi berdasarkan tiga kriteria: 1. Accuracy/Correctness (Apakah respons benar?), 2. Relevance (Apakah respons menjawab instruksi secara langsung?), dan 3. Clarity (Apakah respons mudah dipahami dan tidak bertele-tele?).\nKeluarkan hasil HANYA dalam format JSON valid.\nPENTING: Berikan penjelasan dan bukti terlebih dahulu untuk bernalar, baru kemudian simpulkan 'decision' di kunci paling akhir JSON!\nStruktur JSON: {{\"explanation\": {{\"accuracy\": \"...\", \"relevance\": \"...\", \"clarity\": \"...\"}}, \"evidence\": [{{\"criterion\": \"...\", \"candidate\": \"A\", \"evidence\": \"...\", \"assessment\": \"supported\"}}], \"criteria\": {{\"accuracy\": {{\"A\": 9, \"B\": 8}}, \"relevance\": {{\"A\": 8, \"B\": 7}}, \"clarity\": {{\"A\": 7, \"B\": 7}}}}, \"decision\": \"A atau B\"}}\n[INPUT CONTEXT]\nInput: {user_input}\nResponse A:\n{resp_A}\nResponse B:\n{resp_B}"
 
             with st.spinner("🧠 Qwen3-4B is judging..."):
                 start_time = time.time()
@@ -269,7 +271,7 @@ else:
                 raw_prompt = format_json_prompt(p_id, user_input, resp_A, resp_B)
                 
                 messages = [
-                    {"role": "system", "content": "You are a rigid AI evaluator. Always output valid raw JSON."},
+                    {"role": "system", "content": "You are an impartial and expert AI evaluator. You must evaluate the quality of two AI responses objectively based strictly on the provided instructions. Do not show preference for length unless it adds value. Always output valid raw JSON without markdown formatting."},
                     {"role": "user", "content": raw_prompt}
                 ]
                 
@@ -283,6 +285,12 @@ else:
                 raw_output = tokenizer.decode(outputs[0][inputs['input_ids'].shape[1]:], skip_special_tokens=True)
                 parsed_json = extract_json(raw_output)
                 runtime = time.time() - start_time
+                
+                # OOM Shield (Production-Grade Memory Management)
+                import gc
+                del inputs, outputs
+                torch.cuda.empty_cache()
+                gc.collect()
                 
                 st.markdown("---")
                 render_results(parsed_json, pos, raw_output)
