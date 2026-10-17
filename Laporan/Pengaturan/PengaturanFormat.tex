@@ -13,6 +13,15 @@
 \usepackage{amssymb}
 \usepackage[bahasa]{babel}
 \usepackage{indentfirst}
+\usepackage[T1]{fontenc}
+\usepackage{mathptmx}
+\usepackage{microtype}
+\usepackage{setspace}
+\onehalfspacing
+\setlength{\parindent}{1.0cm}
+\setlength{\parskip}{0pt}
+\frenchspacing
+\emergencystretch=1.5em
 
 % ------------------------------------------------------------------------------
 % Tata Letak Halaman
@@ -39,10 +48,11 @@
 \patchcmd{\@makeschapterhead}{\vspace*{50\p@}}{\vspace*{0pt}}{}{}
 \makeatother
 
-\chapterfont{\centering}
-\newcommand{\bigsize}{\fontsize{16pt}{14pt}\selectfont}
+\newcommand{\bigsize}{\fontsize{16pt}{19pt}\selectfont}
 \chapterfont{\centering\bigsize\bfseries}
-\sectionfont{\large\bfseries}
+\sectionfont{\fontsize{14pt}{17pt}\selectfont\bfseries}
+\subsectionfont{\fontsize{12pt}{15pt}\selectfont\bfseries}
+\subsubsectionfont{\fontsize{12pt}{15pt}\selectfont\bfseries}
 \usepackage{tikz}
 \usetikzlibrary{shapes.geometric, arrows}
 
@@ -50,8 +60,9 @@
 % Penomoran: Bab, Subbab, Persamaan, Gambar, Tabel
 % ------------------------------------------------------------------------------
 \renewcommand{\thechapter}{\Roman{chapter}}
-\renewcommand\thesection{\arabic{chapter}.\arabic{section}}
-\renewcommand\thesubsection{\thesection.\arabic{subsection}}
+\renewcommand\thesection{\arabic{chapter}.\arabic{section}.}
+\renewcommand\thesubsection{\thesection\arabic{subsection}.}
+\renewcommand\thesubsubsection{\thesubsection\arabic{subsubsection}.}
 \renewcommand{\theequation}{\arabic{chapter}.\arabic{equation}}
 \renewcommand{\thefigure}{\arabic{chapter}.\arabic{figure}}
 \renewcommand{\thetable}{\arabic{chapter}.\arabic{table}}
@@ -68,14 +79,20 @@
   \renewcommand{\chaptername}{BAB}
 }
 \usepackage{fancyhdr}
-\pagestyle{fancy}
-\lhead{}
-\chead{}
-\rhead{}
-\lfoot{}
-\cfoot{\thepage}
-\rfoot{}
-\renewcommand{\headrulewidth}{0pt}
+\setlength{\headheight}{15pt}
+\setlength{\footskip}{15pt}
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \cfoot{\thepage}%
+}
+\fancypagestyle{isi}{%
+  \fancyhf{}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \setlength{\headsep}{1.5cm}%
+  \rhead{\thepage}%
+}
+\pagestyle{plain}
 
 % ------------------------------------------------------------------------------
 % Kustomisasi Daftar Isi
@@ -83,6 +100,8 @@
 \usepackage[titles]{tocloft}
 \renewcommand{\cftchappresnum}{BAB }
 \settowidth{\cftchapnumwidth}{BAB VIII }
+\setlength{\cftsecnumwidth}{2.5em}
+\setlength{\cftsubsecnumwidth}{3.2em}
 
 % ------------------------------------------------------------------------------
 % Konfigurasi Daftar Lampiran Otomatis
