@@ -2,80 +2,115 @@
 % Bab I - Pendahuluan
 % ------------------------------------------------------------------------------
 \chapter{PENDAHULUAN}
-Bagian pendahuluan memuat beberapa substansi sebagai berikut:
 
 % ------------------------------------------------------------------------------
 % Latar Belakang
 % ------------------------------------------------------------------------------
 \section{Latar Belakang}
-TA dilakukan untuk menjawab keingintahuan mahasiswa mengenai suatu gejala/konsep/dugaan. Kemukakan argumentasi pentingnya dilakukan pengerjaan TA yang diusulkan tersebut dengan menyampaikan hasil-hasil penelitian sebelumnya yang ada pada referensi. Secara umum latar belakang berisi:
-\begin{itemize}
-    \item Alasan kenapa kasus/masalah/fenomena tersebut diambil sebagai bahan kajian.
-    \item Apakah ada sebuah konsep baru sebagai hasil penelitian?
-    \item Gap antara kondisi saat ini dengan kondisi yang akan datang (diharapkan).
-\end{itemize}
-Uraikan proses-proses yang dilakukan dalam mengidentifikasi masalah yang akan dicari solusinya. Latar belakang minimal 1 halaman.
+
+Perkembangan \textit{large language model} (LLM) mendorong pemanfaatan model bahasa generatif pada berbagai tugas pemrosesan bahasa alami \cite{zhengJudgingLLMasaJudgeMTBench2023}\cite{guSurveyLLMasaJudge2025}. Penilaian kualitas respons yang dihasilkan LLM umumnya memerlukan preferensi manusia (\textit{human preference}) sebagai acuan, tetapi evaluasi manual membutuhkan biaya dan waktu yang besar ketika jumlah data pengujian meningkat \cite{zhengJudgingLLMasaJudgeMTBench2023}\cite{bavarescoLLMsInsteadHuman2025}. Kebutuhan tersebut melahirkan paradigma \textit{LLM-as-a-Judge}, yaitu penggunaan LLM sebagai penilai otomatis, salah satunya melalui perbandingan berpasangan (\textit{pairwise comparison}) untuk memilih respons yang lebih baik di antara dua kandidat \cite{zhengJudgingLLMasaJudgeMTBench2023}\cite{liLLMsasJudgesComprehensiveSurvey2024}. Pada pengujian berbahasa Inggris seperti MT-Bench dan Chatbot Arena, model penilai seperti GPT-4 dilaporkan mampu mencapai kesepakatan di atas 80\% terhadap preferensi manusia pada pasangan keputusan non-seri \cite{zhengJudgingLLMasaJudgeMTBench2023}.
+
+Meskipun demikian, penerapan \textit{LLm-as-a-Judge} menghadapi masalah reliabilitas karena keputusan model belum tentu konsisten ketika urutan posisi kandidat ditukar (\textit{position bias}) \cite{zhengJudgingLLMasaJudgeMTBench2023}\cite{shiJudgingJudgesSystematic} maupun ketika kalimat instruksi penilaian diubah (\textit{prompt sensitivity}) \cite{weiSystematicEvaluationLLMasaJudge2025}\cite{bellibatluJudgeSenseBenchmarkPrompt2026}. Hal ini terjadi karena model penilai peka terhadap urutan penempatan kandidat di dalam konteks masukan, terutama saat selisih kualitas antarkandidat berdekatan \cite{liLLMsasJudgesComprehensiveSurvey2024}\cite{shiJudgingJudgesSystematic}, serta terhadap cara perumusan instruksi dan kriteria penilaian di dalam \textit{prompt} \cite{weiSystematicEvaluationLLMasaJudge2025}\cite{bellibatluJudgeSenseBenchmarkPrompt2026}. Ketidakstabilan tersebut terlihat pada pengujian MT-Bench dengan \textit{prompt} bawaan, ketika pertukaran urutan kandidat dari A--B menjadi B--A pada pasangan respons yang setara hanya menyisakan konsistensi keputusan sebesar 23,8\%--65,0\% \cite{zhengJudgingLLMasaJudgeMTBench2023}, serta pada perbandingan berpasangan terbuka yang mengalami pembalikan putusan (\textit{preference flip}) sebesar 48,4\% saat urutan respons dibalik \cite{anghelDiagnosingBiasInstability2025}. Perubahan redaksi instruksi yang setara secara semantik (\textit{semantically equivalent}) juga menurunkan konsistensi putusan model melampaui variasi dekoding internal (\textit{decoding noise}) \cite{bellibatluJudgeSenseBenchmarkPrompt2026}, sedangkan perbedaan \textit{template prompt} dapat menggeser tingkat kesepakatan dengan manusia serta membalik arah kecenderungan posisi dari kandidat pertama ke kandidat kedua \cite{weiSystematicEvaluationLLMasaJudge2025}. Selain itu, pengukuran kesepakatan yang hanya mengandalkan persentase kecocokan mentah (\textit{exact match}) melampaui nilai Cohen's kappa sebesar 33,8 hingga 41,3 poin persentase pada MT-Bench karena belum memperhitungkan peluang acak \cite{normanReliabilityValiditySystematic2026}, serta dapat memberikan gambaran performa yang menyesatkan ketika distribusi putusan timpang \cite{raoAgreementMetricsLLMasJudge2026}. Apabila reliabilitas penilai tidak diukur secara terkontrol, keputusan pemilihan kandidat dapat berubah akibat pergeseran urutan penyajian \cite{shiJudgingJudgesSystematic}\cite{normanReliabilityValiditySystematic2026} atau formulasi \textit{prompt} \cite{weiSystematicEvaluationLLMasaJudge2025}\cite{bellibatluJudgeSenseBenchmarkPrompt2026}, serta menghasilkan pemeringkatan kualitas model yang bias pada sistem evaluasi yang lebih luas ketika penilaian dari \textit{judge} yang kurang andal diagregasikan secara langsung \cite{xuJudgeAwareRankingFramework2026}.
+
+Permasalahan reliabilitas tersebut semakin relevan untuk dikaji pada Bahasa Indonesia. Dari 650 publikasi \textit{LLM-as-a-Judge} di repositori ACL Anthology, hanya 33 penelitian (5,1\%) yang mengkaji konteks multibahasa atau bahasa bersumber daya rendah, dengan validasi keandalan penilai yang kerap dilewatkan pada bahasa sasaran atau hanya bertumpu pada satu model \textit{judge} \cite{dogruozChallengesRecommendationsLLMasaJudge2026}. Pengujian pada data paralel lintas 25 bahasa juga menunjukkan bahwa konsistensi penilaian model lintas bahasa masih rendah dengan rata-rata Fleiss' kappa sekitar 0,3 \cite{fuHowReliableMultilingual2025}. Untuk Bahasa Indonesia, telah tersedia dataset preferensi berpasangan IndoPref yang disusun dari penutur asli dan memuat 522 \textit{prompt} serta 4.099 pasangan preferensi lintas 10 domain \cite{wiyonoIndoPrefMultiDomainPairwise2025}. Namun, evaluasi pada dataset IndoPref menunjukkan bahwa akurasi \textit{judge} tertinggi baru mencapai 74,34\% (pada Gemini 2.5 Pro), dan penerjemahan \textit{prompt} instruksi evaluasi dari bahasa Inggris ke Bahasa Indonesia dapat menurunkan akurasi model hingga 6,39 poin persentase (dari 69,84\% menjadi 63,45\% pada GPT-4.1) \cite{wiyonoIndoPrefMultiDomainPairwise2025}.
+
+Beberapa pendekatan dapat digunakan untuk mengevaluasi dan menangani masalah ketidakstabilan \textit{LLM-as-a-Judge} tersebut, antara lain pengujian kecocokan satu arah terhadap label referensi manusia tanpa menguji pembalikan urutan kandidat \cite{bavarescoLLMsInsteadHuman2025}\cite{wiyonoIndoPrefMultiDomainPairwise2025}, mitigasi dua urutan yang menetapkan keputusan tidak konsisten (\textit{inconsistent}) antara A--B dan B--A sebagai hasil seri (\textit{tie}) \cite{zhengJudgingLLMasaJudgeMTBench2023}\cite{liLLMsasJudgesComprehensiveSurvey2024}, penggabungan suara dari beberapa model penilai (\textit{ensemble judge}) \cite{fuHowReliableMultilingual2025}, serta evaluasi reliabilitas terkontrol yang menguji pertukaran posisi kandidat \cite{shiJudgingJudgesSystematic}\cite{anghelDiagnosingBiasInstability2025} dan variasi formulasi \textit{prompt} \cite{weiSystematicEvaluationLLMasaJudge2025}\cite{bellibatluJudgeSenseBenchmarkPrompt2026}. Sejauh ini, penelitian yang menguji \textit{position bias} \cite{zhengJudgingLLMasaJudgeMTBench2023}\cite{shiJudgingJudgesSystematic}, sensitivitas formulasi \textit{prompt} \cite{weiSystematicEvaluationLLMasaJudge2025}\cite{bellibatluJudgeSenseBenchmarkPrompt2026}, serta koreksi metrik kesepakatan terhadap peluang \cite{normanReliabilityValiditySystematic2026}\cite{raoAgreementMetricsLLMasJudge2026} umumnya dilakukan pada korpus berbahasa Inggris, sedangkan penelitian pada dataset IndoPref \cite{wiyonoIndoPrefMultiDomainPairwise2025} baru mengevaluasi akurasi satu arah tanpa mengisolasi pengaruh posisi kandidat dan variasi formulasi \textit{prompt} berbahasa Indonesia yang setara secara semantik. Dengan demikian, studi khusus Bahasa Indonesia yang menggunakan \textit{human preference} sebagai acuan dan eksperimen terkontrol yang memisahkan efek posisi kandidat serta formulasi \textit{prompt} masih terbatas. Penelitian ini memilih pendekatan evaluasi empiris terkontrol dengan prinsip satu faktor berubah dalam satu waktu (\textit{one factor at a time}), karena pengujian satu arah tidak dapat mendeteksi pembalikan putusan, penetapan \textit{tie} menyembunyikan proporsi \textit{flip rate} pada pasangan kandidat, dan penggunaan \textit{ensemble} membutuhkan inferensi dari beberapa model sekaligus tanpa mengisolasi sumber inkonsistensi pada model tunggal.
+
+Penelitian ini mengusulkan evaluasi reliabilitas model sumber terbuka \texttt{Qwen/Qwen3-4B-Instruct-2507} sebagai instrumen \textit{judge} tunggal yang dikontrol tetap pada 519 sampel terstratifikasi lintas 10 domain dari dataset IndoPref \cite{wiyonoIndoPrefMultiDomainPairwise2025}, sehingga variasi keputusan yang terukur tidak terbaur dengan perbedaan arsitektur antarmodel. Pengujian dijalankan pada enam kondisi kombinasi dari dua urutan posisi kandidat (kondisi A--B dan B--A) serta tiga formulasi \textit{prompt} berbahasa Indonesia yang setara secara semantik, yaitu \textit{prompt} \textit{baseline} perbandingan holistik (P1), \textit{prompt} multi-kriteria mencakup akurasi, relevansi, dan kejelasan (P2), serta \textit{prompt} mitigasi bias (P3), dengan total 3.114 inferensi. Hasil inferensi tersebut dianalisis secara terkontrol melalui perbandingan antarkondisi posisi pada \textit{prompt} yang sama dan antarformulasi \textit{prompt} pada urutan posisi yang sama. Dibandingkan evaluasi satu arah yang hanya melaporkan akurasi mentah pada satu urutan dan satu \textit{prompt}, pendekatan ini memungkinkan pengukuran kesepakatan terhadap preferensi manusia menggunakan metrik \textit{accuracy} dan Cohen's kappa \cite{normanReliabilityValiditySystematic2026}\cite{raoAgreementMetricsLLMasJudge2026}, sekaligus memisahkan besaran ketidakkonsistenan akibat posisi kandidat melalui \textit{position consistency}, \textit{preference flip rate}, dan \textit{first-position preference rate} \cite{shiJudgingJudgesSystematic}\cite{normanReliabilityValiditySystematic2026} serta akibat variasi formulasi \textit{prompt} melalui \textit{prompt consistency} dan \textit{prompt flip rate} yang diadaptasi dari pengujian sensitivitas \textit{prompt} \cite{weiSystematicEvaluationLLMasaJudge2025}\cite{bellibatluJudgeSenseBenchmarkPrompt2026}. Berdasarkan latar belakang dan permasalahan tersebut, penelitian ini bertujuan untuk mengukur dan menganalisis tingkat konsistensi keputusan \texttt{Qwen/Qwen3-4B-Instruct-2507} sebagai \textit{LLM-as-a-Judge} terhadap \textit{human preference} pada respons Bahasa Indonesia dalam dataset IndoPref, serta menganalisis pengaruh perubahan posisi kandidat dan variasi formulasi \textit{prompt} terhadap konsistensi keputusannya.
 
 % ------------------------------------------------------------------------------
 % Rumusan Masalah
 % ------------------------------------------------------------------------------
 \section{Rumusan Masalah}
-Uraikan permasalahan yang akan dibahas dalam TA dengan mengacu pada latar belakang yang telah disampaikan dan hasil penelitian terdahulu (bila ada). Uraian perumusan masalah tidak harus dalam bentuk pertanyaan.
+
+Berdasarkan latar belakang yang telah diuraikan, rumusan masalah dalam penelitian ini adalah sebagai berikut:
+\begin{enumerate}
+  \item Seberapa konsisten keputusan LLM-as-a-Judge dengan \textit{human preference} pada respons Bahasa Indonesia?
+  \item Bagaimana perubahan posisi kandidat (A--B dan B--A) memengaruhi konsistensi keputusan LLM-as-a-Judge?
+  \item Bagaimana variasi formulasi \textit{prompt} memengaruhi konsistensi keputusan LLM-as-a-Judge?
+\end{enumerate}
 
 % ------------------------------------------------------------------------------
 % Tujuan Penelitian
 % ------------------------------------------------------------------------------
 \section{Tujuan Penelitian}
-Berikan pernyataan singkat mengenai tujuan TA. Tujuan dapat berupa menguraikan, menerangkan, membuktikan atau menerapkan suatu gejala/konsep/dugaan, atau membuat suatu model. Rumuskan tujuan yang akan dicapai secara spesifik yang merupakan kondisi baru yang diharapkan terwujud setelah TA selesai.
+
+Berdasarkan rumusan masalah yang telah diidentifikasi, tujuan yang ingin dicapai dalam penelitian ini adalah sebagai berikut:
+\begin{enumerate}
+  \item Mengukur tingkat konsistensi keputusan \textit{LLM-as-a-Judge} terhadap \textit{human preference} pada respons Bahasa Indonesia menggunakan metrik \textit{accuracy} dan Cohen's kappa.
+  \item Menganalisis pengaruh perubahan posisi kandidat (A--B dan B--A) terhadap konsistensi keputusan \textit{LLM-as-a-Judge} menggunakan metrik \textit{position consistency}, \textit{preference flip rate}, dan \textit{first-position preference rate}.
+  \item Menganalisis pengaruh variasi formulasi \textit{prompt} yang setara secara semantik terhadap konsistensi keputusan \textit{LLM-as-a-Judge} menggunakan metrik \textit{prompt consistency} dan \textit{prompt flip rate}.
+\end{enumerate}
 
 % ------------------------------------------------------------------------------
 % Manfaat Penelitian
 % ------------------------------------------------------------------------------
 \section{Manfaat Penelitian}
-Sebutkan manfaat yang diharapkan dari hasil penelitian ini, baik secara akademis, praktis, maupun sosial.
+
+Apabila permasalahan dalam penelitian ini dapat diselesaikan, manfaat yang diharapkan bagi pihak terkait adalah sebagai berikut:
+\begin{enumerate}
+  \item \textbf{Bagi Akademisi:} Menjadi rujukan empiris dan protokol pengujian yang dapat direplikasi mengenai reliabilitas \textit{LLM-as-a-Judge} pada evaluasi respons Bahasa Indonesia.
+  \item \textbf{Bagi Praktisi dan Pengembang:} Menjadi bahan pertimbangan dalam memilih formulasi \textit{prompt} dan mengantisipasi bias posisi kandidat saat menggunakan LLM sebagai penilai otomatis.
+\end{enumerate}
 
 % ------------------------------------------------------------------------------
 % Batasan Masalah
 % ------------------------------------------------------------------------------
 \section{Batasan Masalah}
-Sebutkan batasan-batasan dalam penelitian ini untuk menghindari meluasnya permasalahan yang dibahas.
+
+Untuk memperjelas ruang lingkup dan kondisi berlakunya hasil penelitian, batasan masalah dalam penelitian ini ditetapkan sebagai berikut:
+\begin{enumerate}
+  \item Model \textit{judge} yang diuji dibatasi pada satu model sumber terbuka, yaitu \texttt{Qwen/Qwen3-4B-Instruct-2507} dengan kuantisasi 4-bit pada lingkungan Google Colab satu GPU tanpa \textit{training} atau \textit{fine-tuning}, sehingga temuan penelitian berlaku spesifik pada model dan konfigurasi tersebut.
+  \item Data pengujian menggunakan 519 sampel terstratifikasi lintas 10 domain dari dataset IndoPref dengan memanfaatkan label \textit{reference human preference} yang tersedia tanpa perekrutan anotator baru.
+  \item Pengujian posisi kandidat dilakukan pada perbandingan berpasangan dua urutan, yaitu kondisi A--B (kandidat A ditampilkan pertama dan kandidat B kedua) serta kondisi B--A (kandidat B ditampilkan pertama dan kandidat A kedua).
+  \item Variasi \textit{prompt} menggunakan tiga formulasi berbahasa Indonesia yang setara secara semantik, yaitu \textit{baseline} holistik (P1), multi-kriteria (P2), dan mitigasi bias (P3).
+  \item Keluaran eksperimen utama dibatasi pada pilihan biner (\texttt{A} atau \texttt{B}) tanpa penalaran \textit{Chain-of-Thought}.
+\end{enumerate}
 
 % ------------------------------------------------------------------------------
 % Hipotesis Penelitian
 % ------------------------------------------------------------------------------
-\section{Hipotesis Penelitian (Opsional)}
-Merupakan jawaban sementara atas permasalahan yang akan dibahas. Hipotesis memuat penjelasan mengenai metode/konsep yang akan digunakan untuk memecahkan masalah serta alasan pemilihan metode/konsep tersebut.
+\section{Hipotesis Penelitian}
+
+Penelitian ini menggunakan metode evaluasi berpasangan terkontrol dengan mengubah satu faktor dalam satu waktu (\textit{one factor at a time}) untuk mengisolasi pengaruh posisi kandidat \cite{shiJudgingJudgesSystematic}\cite{anghelDiagnosingBiasInstability2025} dan formulasi \textit{prompt} \cite{weiSystematicEvaluationLLMasaJudge2025}\cite{bellibatluJudgeSenseBenchmarkPrompt2026}. Berbeda dari penelitian terdahulu yang umumnya menguji salah satu faktor pada teks berbahasa Inggris, penelitian ini menguji kedua faktor tersebut terhadap acuan \textit{human preference} Bahasa Indonesia pada dataset IndoPref \cite{wiyonoIndoPrefMultiDomainPairwise2025}. Berdasarkan pendekatan tersebut, hipotesis dalam penelitian ini adalah sebagai berikut:
+\begin{enumerate}
+  \item Perubahan posisi kandidat dapat menyebabkan perubahan keputusan LLM-as-a-Judge dan menurunkan konsistensi keputusan terhadap \textit{human preference}.
+  \item Variasi formulasi \textit{prompt} yang \textit{semantically equivalent} dapat menyebabkan perubahan keputusan LLM-as-a-Judge dan memengaruhi konsistensinya terhadap \textit{human preference}.
+\end{enumerate}
 
 % ------------------------------------------------------------------------------
 % Jadwal Penelitian (Gantt Chart)
 % ------------------------------------------------------------------------------
 \section{Jadwal Penelitian}
 
-Jadwal pelaksanaan dibuat berdasarkan metodologi penyelesaian masalah yang digunakan. Bar-chart bisa dibuat per bulan atau per minggu. Dibawah ini adalah merupakan contoh bar-chart:
+Jadwal pelaksanaan penelitian ini disusun selama enam bulan sebagaimana ditunjukkan pada Tabel~\ref{tab:jadwal_penelitian}.
 
-\begin{table}[h!]
+\begin{table}[H]
   \centering
-    \caption{Jadwal penelitian tugas akhir}
-  \label{Novella}
-  \begin{tabular}{|c|m{2.5cm}|m{0.01cm}|m{0.01cm}|m{0.01cm}|m{0.01cm}|m{0.01cm}|m{0.01cm}|m{0.01cm}|m{0.01cm}|m{0.01cm}|m{0.01cm}|m{0.01cm}|m{0.01cm}|m{0.01cm}|m{0.01cm}|m{0.01cm}|m{0.01cm}|m{0.01cm}|m{0.01cm}|m{0.01cm}|m{0.01cm}|m{0.01cm}|m{0.01cm}|m{0.01cm}|m{0.01cm}|}
+  \singlespacing
+  \caption{Jadwal penelitian tugas akhir.}
+  \label{tab:jadwal_penelitian}
+  \setlength{\tabcolsep}{3.8pt}
+  \begin{tabular}{|c|m{4.5cm}|*{24}{m{0.05cm}|}}
     \hline
-    \multirow{2}{*}{\textbf{No}} & \multirow{2}{*}{\textbf{Kegiatan}} & \multicolumn{24}{|c|}{\textbf{Bulan ke-}} \\
+    \multirow{2}{*}{\textbf{No}} & \multirow{2}{*}{\textbf{Kegiatan}} & \multicolumn{24}{c|}{\textbf{Bulan ke-}} \\
     \hhline{~~------------------------}
-    {} & {} & \multicolumn{4}{|c|}{\textbf{1}} & \multicolumn{4}{|c|}{\textbf{2}} & \multicolumn{4}{|c|}{\textbf{3}} & \multicolumn{4}{|c|}{\textbf{4}} & \multicolumn{4}{|c|}{\textbf{5}} & \multicolumn{4}{|c|}{\textbf{6}}\\
+    {} & {} & \multicolumn{4}{c|}{\textbf{1}} & \multicolumn{4}{c|}{\textbf{2}} & \multicolumn{4}{c|}{\textbf{3}} & \multicolumn{4}{c|}{\textbf{4}} & \multicolumn{4}{c|}{\textbf{5}} & \multicolumn{4}{c|}{\textbf{6}}\\
     \hline
-    1 & Studi Literatur & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25}& \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25}& \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25}& \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25}& \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25}& \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25}\\
+    1 & Studi Literatur & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25}& \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25}& {} & {} & {} & {}& {} & {} & {} & {}& {} & {} & {} & {}& {} & {} & {} & {}\\
     \hline
-    2 & Pengumpulan Data & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & {} & {} & {} & {} & {} & {} & {} & {}& {} & {} & {} & {}& {} & {} & {} & {}& {} & {} & {} & {}\\
+    2 & Penyiapan Data IndoPref dan Sampling & {} & {} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & {} & {} & {} & {} & {} & {}& {} & {} & {} & {}& {} & {} & {} & {}& {} & {} & {} & {}\\
     \hline
-    3 & Analisis dan Perancangan Sistem &  {} & {} & {} & {}  & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & {} & {} & {} & {}& {} & {} & {} & {}& {} & {} & {} & {}\\
+    3 & Perancangan Prompt dan Konfigurasi Uji & {} & {} & {} & {}  & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & {} & {} & {} & {} & {} & {}& {} & {} & {} & {}& {} & {} & {} & {}\\
     \hline
-    4 & Implementasi Sistem &  {} & {} & {} & {} & {} & {} & {} & {}& \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & {} & {} & {} & {}& {} & {} & {} & {}\\
+    4 & Pelaksanaan Eksperimen Inferensi & {} & {} & {} & {} & {} & {} & {} & {}& \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & {} & {} & {} & {}& {} & {} & {} & {}\\
     \hline
-    5 & Analisa Hasil Implementasi &  {} & {} & {} & {} & {} & {} & {} & {}& {} & {} & {} & {} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & {} & {} & {} & {}\\
+    5 & Analisis Reliabilitas dan Evaluasi Statistik & {} & {} & {} & {} & {} & {} & {} & {}& {} & {} & {} & {} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & {} & {} & {} & {}\\
     \hline
-    6 & Penulisan Laporan & {} & {} & {} & {} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25}& \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25}& \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25}& \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25}& \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25}\\
+    6 & Penulisan Laporan Tugas Akhir & {} & {} & {} & {} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25}& \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25}& \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25}& \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25}& \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25} & \cellcolor{blue!25}\\
     \hline
   \end{tabular}
-
 \end{table}
+
+Tabel~\ref{tab:jadwal_penelitian} menyajikan tahapan pengerjaan Tugas Akhir mulai dari studi literatur, penyiapan data, perancangan dan pelaksanaan eksperimen, analisis hasil, hingga penulisan laporan.
 \newpage
