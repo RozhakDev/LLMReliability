@@ -4,6 +4,7 @@ Thumbs.db
 desktop.ini
 .env
 .env.*
+!.env.example
 .venv/
 venv/
 env/
@@ -85,3 +86,7 @@ _minted*/
 # AI Agent
 .agents/
 .knowledge-base/
+
+# Obsolete & Deprecated Experiments
+AI/06_Explainability_Generator.ipynb
+ML/
