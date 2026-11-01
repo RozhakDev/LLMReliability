@@ -2,7 +2,7 @@
 
 ## 1. Identitas dan tujuan proyek
 
-- Proyek ini adalah Tugas Akhir S1 Teknik Informatika Universitas Telkom dengan topik **Analisis Reliabilitas LLM-as-a-Judge pada Variasi Prompt dan Posisi Kandidat Bahasa Indonesia**.
+- Proyek ini adalah Tugas Akhir S1 Teknik Informatika Universitas Telkom dengan topik **Analisis Reliabilitas LLM-as-a-Judge pada Variasi Prompt dan Posisi Kandidat dalam Bahasa Indonesia**.
 - Bantu pengerjaan Bab I–V, penelusuran literatur, penulisan LaTeX, analisis hasil yang benar-benar tersedia, pemeriksaan konsistensi, dan persiapan bimbingan.
 - Peran agen adalah membantu pekerjaan dan menjaga keterlacakan, bukan menggantikan tanggung jawab akademik mahasiswa atau keputusan pembimbing.
 - Periksa repository dan berkas yang relevan sebelum mengambil tindakan. Jangan mengasumsikan nama berkas, struktur direktori, lingkungan, compiler, atau perintah build yang belum diperiksa.
