@@ -2,75 +2,413 @@
 % Bab III - Metode Penelitian
 % ------------------------------------------------------------------------------
 \chapter{METODE PENELITIAN}
-Metode penelitian berisikan alur pembuatan model, dapat berupa diagram block proses atau flowchart, beserta penjelasannya.
+
+Pada bab ini dipaparkan metode penelitian yang digunakan untuk menganalisis reliabilitas \textit{LLM-as-a-Judge} terhadap variasi formulasi \textit{prompt} dan posisi kandidat respons dalam Bahasa Indonesia. Pembahasan disajikan secara berurutan meliputi subjek dan objek penelitian, alat dan bahan penelitian, serta diagram alir penelitian yang menjadi acuan penyajian hasil pada Bab~IV.
 
 % ------------------------------------------------------------------------------
-% Subjek dan Objek Penelitian
+% 3.1 Subjek dan Objek Penelitian
 % ------------------------------------------------------------------------------
 \section{Subjek dan Objek Penelitian}
-Berisi penjelasan terkait subjek atau objek yang akan diteliti. Rancangan sistem dapat berisikan rencana kebutuhan data (pengumpulan dan pre-processing data), serta skenario pengujian yang akan dilakukan.
+
+Subjek dalam penelitian ini adalah model bahasa besar sumber terbuka (\textit{open-weight}) \texttt{Qwen/\allowbreak Qwen3-\allowbreak 32B} \cite{yangQwen3TechnicalReport2025} yang digunakan sebagai sistem penilai otomatis berpasangan (\textit{pairwise LLM-as-a-Judge}). Model tersebut merupakan model bahasa kausal \textit{dense} berkapasitas 32 miliar parameter yang dilatih pada 36 triliun token lintas 119 bahasa dan dialek termasuk Bahasa Indonesia, serta dioperasikan dalam mode tanpa penalaran internal (\textit{non-thinking mode}) \cite{yangQwen3TechnicalReport2025}. Evaluasi dirancang sepenuhnya berbasis inferensi (\textit{inference-based evaluation}) tanpa pelatihan ulang atau \textit{fine-tuning} \cite{guSurveyLLMasaJudge2025}. Penggunaan satu model penilai tunggal ditetapkan untuk mengisolasi pengaruh perlakuan posisi kandidat dan formulasi \textit{prompt} agar tidak tercampur dengan perbedaan arsitektur antarmodel.
+
+Objek dalam penelitian ini adalah tingkat reliabilitas keputusan evaluasi berpasangan dari \texttt{Qwen/\allowbreak Qwen3-\allowbreak 32B} pada pasangan respons berbahasa Indonesia. Pengamatan terhadap objek tersebut difokuskan pada tingkat kesepakatan keputusan model terhadap label acuan preferensi manusia (\textit{reference human preference}), konsistensi serta kecenderungan arah keputusan ketika urutan kandidat ditukar antara urutan standar (A--B) dan urutan terbalik (B--A), serta konsistensi keputusan ketika menggunakan tiga variasi formulasi \textit{prompt} berbahasa Indonesia yang setara secara semantik (P1, P2, dan P3).
 
 % ------------------------------------------------------------------------------
-% Alat dan Bahan Penelitian
+% 3.2 Alat dan Bahan Penelitian
 % ------------------------------------------------------------------------------
 \section{Alat dan Bahan Penelitian}
 
+Bagian ini menguraikan alat penelitian dan bahan penelitian yang digunakan dalam perancangan serta pengujian eksperimen.
+
 \subsection{Alat Penelitian}
-Sebutkan alat-alat (hardware/software) yang akan digunakan selama penelitian.
+
+Alat penelitian mencakup perangkat keras komputasi untuk menjalankan inferensi model bahasa besar dan pengolahan data, perangkat lunak beserta pustaka pemrograman yang mendukung pengujian serta analisis statistik, variabel penelitian, dan persamaan evaluasi. Rincian perangkat keras dan perangkat lunak yang digunakan disajikan pada Tabel~\ref{tab:alat_penelitian}.
+
+\begin{table}[H]
+  \centering
+  {\footnotesize\linespread{1.0}\selectfont
+  \let\normalsize\footnotesize
+  \setlength{\abovecaptionskip}{0pt}
+  \setlength{\belowcaptionskip}{\baselineskip}
+  \caption{Spesifikasi perangkat keras dan perangkat lunak penelitian.}
+  \label{tab:alat_penelitian}
+  }
+  {\small
+  \linespread{1.00}\selectfont
+  \renewcommand{\arraystretch}{1.08}
+  \setlength{\tabcolsep}{5pt}
+  \begin{tabular}{|>{\raggedright\arraybackslash}p{2.55cm}|>{\raggedright\arraybackslash}p{3.15cm}|>{\raggedright\arraybackslash}p{6.95cm}|}
+    \hline
+    \multicolumn{1}{|>{\centering\arraybackslash}p{2.55cm}|}{\textbf{Kategori}} &
+    \multicolumn{1}{>{\centering\arraybackslash}p{3.15cm}|}{\textbf{Komponen}} &
+    \multicolumn{1}{>{\centering\arraybackslash}p{6.95cm}|}{\textbf{Spesifikasi dan Kegunaan}} \\
+    \hline
+    Komputasi Awan (\textit{Remote Runtime}) & Google Colab Pro & \textit{Runtime} Linux berbasis komputasi awan dengan akselerator GPU tunggal NVIDIA~A100-SXM4-80GB (VRAM 80~GB) dan \textit{disk} lokal \textit{runtime} untuk menyimpan \textit{cache} bobot model serta menjalankan inferensi. \\
+    \hline
+    Penyimpanan Awan & Google Drive & Media penyimpanan berkapasitas 5~TB untuk menyimpan data pengujian, berkas \textit{checkpoint} inferensi, dan hasil evaluasi eksperimen. \\
+    \hline
+    Perangkat Keras Lokal & Laptop & Prosesor AMD Ryzen~3 3250U \textit{with Radeon Graphics} (2,60~GHz) dan RAM 8,00~GB (64-bit, x64) sebagai perangkat utama penulisan kode, kendali \textit{remote runtime}, pengolahan hasil, dan penyusunan laporan. \\
+    \hline
+    Sistem Operasi dan Terminal & Windows~11, WSL (Kali Linux), PowerShell & Sistem operasi Windows~11 Home Single Language dengan terminal WSL (Kali Linux) dan Windows PowerShell untuk eksekusi perintah baris, pengelolaan lingkungan kerja, serta kompilasi dokumen. \\
+    \hline
+    IDE, Dokumen, dan Referensi & VS Code, Jupyter Notebook, \LaTeX{}, Zotero & Lingkungan pengembangan terpadu untuk penulisan kode eksperimen dan laporan (\textit{pdflatex} serta \textit{BibTeX}), pengelolaan sitasi pustaka melalui Zotero, serta eksekusi Jupyter Notebook yang dihubungkan secara \textit{remote} ke \textit{runtime} Google Colab. \\
+    \hline
+    Sistem Kontrol Versi & Git \& GitHub & Pengelolaan versi (\textit{version control}) dan repositori terpusat untuk kode eksperimen beserta dokumen laporan Tugas Akhir. \\
+    \hline
+    Bahasa Pemrograman & Python~3 & Bahasa pemrograman utama pada Jupyter Notebook untuk implementasi skenario eksperimen, prapemrosesan data, dan evaluasi statistik. \\
+    \hline
+    Pustaka Inferensi dan Kuantisasi & PyTorch, Transformers, BitsAndBytes, Accelerate & Pemuatan model bahasa kausal dan \textit{tokenizer}, konfigurasi kuantisasi 8-bit (\texttt{int8}), serta eksekusi inferensi model pada GPU. \\
+    \hline
+    Pustaka Pengolahan Data & Datasets, Pandas, NumPy, PyArrow & Pengambilan dataset sekunder, pemeriksaan kelengkapan atribut data, dan pengolahan tabel hasil pengujian. \\
+    \hline
+    Pustaka Evaluasi dan Visualisasi & Scikit-learn, Statsmodels, Matplotlib, Seaborn & Perhitungan koefisien kesepakatan, pengujian signifikansi statistik berpasangan, serta pembuatan grafik visualisasi evaluasi. \\
+    \hline
+  \end{tabular}
+  }
+\end{table}
+
+Berdasarkan Tabel~\ref{tab:alat_penelitian}, penulisan kode pengujian pada Jupyter Notebook serta penyusunan laporan \LaTeX{} dilakukan secara terpusat menggunakan Visual Studio Code pada laptop dengan dukungan terminal WSL (Kali Linux), Windows PowerShell, dan manajemen referensi Zotero, sedangkan pengelolaan versi kode serta dokumen dilakukan melalui Git dan GitHub. Untuk kebutuhan komputasi model, Jupyter Notebook pada VS Code dihubungkan secara \textit{remote} ke \textit{runtime} Google Colab Pro sehingga GPU NVIDIA~A100-SXM4-80GB dan \textit{disk} lokal \textit{runtime} digunakan khusus untuk menyimpan \textit{cache} bobot model serta menjalankan inferensi, sementara Google Drive 5~TB digunakan untuk menyimpan data pengujian dan berkas hasil evaluasi.
+
+Selain perangkat komputasi, alat penelitian mencakup penetapan variabel bebas, variabel terikat, dan variabel kontrol sebagai kerangka pengujian eksperimental yang definisi operasionalnya dirangkum pada Tabel~\ref{tab:variabel_penelitian}.
+
+\begin{table}[H]
+  \centering
+  {\footnotesize\linespread{1.0}\selectfont
+  \let\normalsize\footnotesize
+  \setlength{\abovecaptionskip}{0pt}
+  \setlength{\belowcaptionskip}{\baselineskip}
+  \caption{Variabel bebas, variabel terikat, dan variabel kontrol penelitian.}
+  \label{tab:variabel_penelitian}
+  }
+  {\small
+  \linespread{1.00}\selectfont
+  \renewcommand{\arraystretch}{1.06}
+  \setlength{\tabcolsep}{5pt}
+  \begin{tabular}{|>{\raggedright\arraybackslash}p{2.15cm}|>{\raggedright\arraybackslash}p{3.15cm}|>{\raggedright\arraybackslash}p{7.55cm}|}
+    \hline
+    \multicolumn{1}{|>{\centering\arraybackslash}p{2.15cm}|}{\textbf{Jenis Variabel}} &
+    \multicolumn{1}{>{\centering\arraybackslash}p{3.15cm}|}{\textbf{Nama Variabel}} &
+    \multicolumn{1}{>{\centering\arraybackslash}p{7.55cm}|}{\textbf{Definisi Operasional}} \\
+    \hline
+    Variabel Bebas & Posisi Kandidat & Dua urutan penyajian kandidat pada \textit{prompt}, yaitu urutan standar A--B (kandidat pertama di slot pertama, kandidat kedua di slot kedua) dan urutan terbalik B--A (kandidat kedua di slot pertama, kandidat pertama di slot kedua). \\
+    \cline{2-3}
+     & Formulasi \textit{Prompt} & Tiga variasi instruksi evaluasi berbahasa Indonesia yang setara secara semantik dengan ruang jawaban biner (\texttt{A} atau \texttt{B}), terdiri atas \textit{baseline} holistik (P1), multi-kriteria (P2), dan mitigasi bias (P3). \\
+    \hline
+    Variabel Terikat & Kesepakatan terhadap \textit{Human Preference} & Tingkat kecocokan keputusan valid model terhadap label preferensi manusia yang diukur melalui \textit{Accuracy} dan koefisien Cohen's kappa ($\kappa$). \\
+    \cline{2-3}
+     & Konsistensi Posisi Kandidat & Konsistensi keputusan terhadap pertukaran urutan A--B dan B--A serta arah kecenderungan posisi, diukur melalui \textit{Position Consistency}, \textit{Preference Flip Rate}, dan \textit{First-Position Preference Rate}. \\
+    \cline{2-3}
+     & Konsistensi Formulasi \textit{Prompt} & Konsistensi keputusan lintas formulasi P1, P2, dan P3 pada urutan kandidat tetap, diukur melalui \textit{Prompt Consistency} tiga arah dan \textit{Prompt Flip Rate} antarpasangan \textit{prompt}. \\
+    \hline
+    Variabel Kontrol & Model dan Kuantisasi & Model tunggal \texttt{Qwen/\allowbreak Qwen3-\allowbreak 32B} dengan kuantisasi 8-bit (\texttt{int8}) dan tipe data \textit{Float16} \cite{dettmersQLoRAEfficientFinetuning2023}. \\
+    \cline{2-3}
+     & Struktur Pesan dan Dekoding & Pesan sistem (\textit{system prompt}) serta struktur \textit{chat template} Qwen3 dalam mode \textit{non-thinking} yang seragam, dekoding \textit{greedy} deterministik (\texttt{do\_sample=False}), dan batas maksimum 10 token keluaran baru. \\
+    \cline{2-3}
+     & Data Pengujian & Himpunan 519 sampel pasangan respons unik IndoPref yang sama pada seluruh kombinasi uji. \\
+    \hline
+  \end{tabular}
+  }
+\end{table}
+
+Tabel~\ref{tab:variabel_penelitian} menunjukkan bahwa pengujian disusun dengan prinsip pengubahan satu faktor dalam satu waktu (\textit{one factor at a time}). Penggunaan dekoding \textit{greedy} deterministik tanpa \textit{sampling} acak (\texttt{do\_sample=False}) bertujuan menghilangkan variasi keluaran antar-inferensi (\textit{decoding noise}) \cite{shiJudgingJudgesSystematic}\cite{normanReliabilityValiditySystematic2026}. Dengan pengaturan variabel kontrol tersebut, perbandingan antara urutan A--B dan B--A pada \textit{prompt} yang sama digunakan untuk menguji pengaruh posisi kandidat secara terpisah, sedangkan perbandingan antara formulasi P1, P2, dan P3 pada urutan posisi yang sama (urutan standar A--B) digunakan untuk menguji pengaruh variasi formulasi \textit{prompt}.
+
+Perhitungan ketujuh metrik pada variabel terikat mengacu pada Persamaan~(\ref{eq:accuracy}) sampai dengan Persamaan~(\ref{eq:prompt_flip_rate}) pada Subbab~2.2. Seluruh persamaan tersebut diterapkan pada keputusan biner yang valid (\texttt{A} atau \texttt{B}), sedangkan keluaran yang tidak memuat pilihan valid dipisahkan dan dicatat proporsinya melalui \textit{invalid rate} \cite{raoAgreementMetricsLLMasJudge2026}. Metrik \textit{accuracy} dan Cohen's $\kappa$ dihitung baik pada kondisi acuan satu urutan (P1 urutan A--B) maupun pada gabungan dua urutan (A--B dan B--A) untuk setiap formulasi \textit{prompt} serta dirinci per domain topik. Selain nilai titik, estimasi Cohen's $\kappa$ dilengkapi rentang kepercayaan (\textit{confidence interval}) 95\% menggunakan metode \textit{non-parametric percentile bootstrap} sebanyak 500 iterasi pengambilan sampel ulang dengan pengembalian (\textit{resampling with replacement}, persentil ke-2,5 dan ke-97,5) \cite{chandrahasEvalciPythonLibrary2026}, sedangkan nilai \textit{accuracy} dilengkapi rentang kepercayaan normal (\textit{Wald} 95\% CI) sebesar $\hat{p} \pm 1{,}96\sqrt{\hat{p}(1-\hat{p})/n}$.
+
+Untuk menguji signifikansi ketidakseimbangan arah perubahan keputusan antara urutan A--B dan B--A, digunakan uji berpasangan McNemar dengan koreksi kontinuitas \cite{chandrahasEvalciPythonLibrary2026} sebagaimana dituliskan pada Persamaan~(\ref{eq:mcnemar_cc}):
+\begin{equation}
+  \chi^2 = \frac{\left(|b - c| - 1\right)^2}{b + c}
+  \label{eq:mcnemar_cc}
+\end{equation}
+dengan $b$ menyatakan jumlah pasangan berbeda (\textit{discordant pairs}) yang memilih kandidat pertama pada urutan A--B namun berbalik memilih kandidat kedua pada urutan B--A, dan $c$ menyatakan jumlah pasangan berbeda yang memilih kandidat kedua pada urutan A--B namun berbalik memilih kandidat pertama pada urutan B--A.
+
+Persamaan~(\ref{eq:mcnemar_cc}) menguji hipotesis nol bahwa perubahan keputusan akibat pertukaran urutan terjadi secara seimbang ke kedua arah ($H_0\!: p_b = p_c$) berdasarkan distribusi chi-kuadrat ($\chi^2$) dengan derajat kebebasan $\text{df} = 1$ dan taraf signifikansi $\alpha = 0{,}05$. Nilai $b$ menunjukkan jumlah sampel tidak konsisten yang memilih kandidat pada slot pertama di kedua urutan (\textit{primacy bias}), sedangkan nilai $c$ menunjukkan jumlah sampel tidak konsisten yang memilih kandidat pada slot kedua di kedua urutan (\textit{recency bias}). Berdasarkan kriteria uji tersebut, $H_0$ ditolak apabila nilai $p < 0{,}05$ (atau $\chi^2 \ge 3{,}841$), yang menandakan adanya kecenderungan arah posisi yang signifikan secara statistik antara urutan A--B dan B--A.
 
 \subsection{Bahan Penelitian}
-Sebutkan bahan-bahan pendukung, pustaka utama, atau dataset yang digunakan.
 
-\subsection{Diagram Alir Penelitian}
-% Definisi style node dan panah untuk diagram TikZ
-\tikzstyle{startstop} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=red!30]
-\tikzstyle{io} = [trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!30]
-\tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=1cm, text centered, minimum width=3cm, draw=black, fill=orange!30]
-\tikzstyle{decision} = [diamond, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=green!30]
-\tikzstyle{arrow} = [thick,->,>=stealth]
-\tikzstyle{cloud} = [draw, ellipse,fill=red!20, minimum height=2em]
+Bahan penelitian yang digunakan adalah data sekunder dari dataset terbuka IndoPref (\textit{A Multi-Domain Pairwise Preference Dataset for Indonesian}) yang dikembangkan oleh Wiyono dkk.\ \cite{wiyonoIndoPrefMultiDomainPairwise2025} di bawah lisensi CC~BY~4.0 pada repositori Hugging Face (\texttt{davidanugraha/IndoPref}). Dataset ini memuat 4.099 perbandingan preferensi berpasangan yang dibangun dari 522 instruksi asli penutur Bahasa Indonesia lintas 10 domain topik dengan pasangan respons dari lima model bahasa \textit{instruction-tuned} serta kesepakatan antar-anotator Krippendorff's $\alpha = 0{,}891$ \cite{wiyonoIndoPrefMultiDomainPairwise2025}. Sesuai batasan penelitian, label preferensi manusia pada IndoPref digunakan langsung sebagai \textit{reference human preference} tanpa proses anotasi baru.
 
-\begin{figure}[h!]
-    \centering
-\begin{tikzpicture}[node distance=2cm]
-\node (start) [cloud] {Start};
-\node (in1) [io, below of=start] {Input};
-\node (pro1) [process, below of=in1] {Process 1};
-\node (dec1) [decision, below of=pro1] {Decision 1};
-\node (pro2a) [process, below of=dec1, yshift=-0.5cm] {Process 2a};
-\node (pro2b) [process, right of=dec1, xshift=2cm] {Process 2b};
-\node (out1) [io, below of=pro2a] {Output};
-\node (stop) [cloud, below of=out1] {Stop};
-\draw [arrow] (start) -- (in1);
-\draw [arrow] (in1) -- (pro1);
-\draw [arrow] (pro1) -- (dec1);
-\draw [arrow] (dec1) -- (pro2a);
-\draw [arrow] (dec1) -- (pro2b);
-\draw [arrow] (pro2b) |- (pro1);
-\draw [arrow] (pro2a) -- (out1);
-\draw [arrow] (out1) -- (stop);
-\end{tikzpicture}
-    \caption{Contoh Diagram Alir Penelitian}
-    \label{figflow}
+Struktur data IndoPref yang digunakan sebagai bahan penelitian mencakup enam atribut, yaitu kode pengenal instruksi asal (\texttt{original\_id}), kategori domain topik (\texttt{domain}), teks instruksi masukan berbahasa Indonesia (\texttt{input}), teks respons kandidat pertama (\texttt{response\_1}), teks respons kandidat kedua (\texttt{response\_2}), serta skor hasil anotasi manusia (\texttt{actual\_score}) yang menandai kandidat pemenang. Di dalam 4.099 baris perbandingan berpasangan pada dataset tersebut, terdapat 519 kode instruksi unik (\texttt{original\_id}) lintas 10 domain topik karena satu instruksi yang sama dipasangkan berulang kali untuk berbagai kombinasi model penjawab. Penelitian ini menggunakan satu pasangan respons untuk setiap kode instruksi asal sehingga bahan data pengujian berjumlah 519 sampel unik dengan sebaran per domain topik sebagaimana disajikan pada Tabel~\ref{tab:distribusi_domain_indopref}.
+
+\begin{table}[H]
+  \centering
+  {\footnotesize\linespread{1.0}\selectfont
+  \let\normalsize\footnotesize
+  \setlength{\abovecaptionskip}{0pt}
+  \setlength{\belowcaptionskip}{\baselineskip}
+  \caption{Distribusi bahan data pengujian IndoPref pada sepuluh domain topik.}
+  \label{tab:distribusi_domain_indopref}
+  }
+  {\small
+  \linespread{1.03}\selectfont
+  \renewcommand{\arraystretch}{1.14}
+  \setlength{\tabcolsep}{6pt}
+  \begin{tabular}{|>{\centering\arraybackslash}p{1.0cm}|>{\raggedright\arraybackslash}p{4.8cm}|>{\centering\arraybackslash}p{2.7cm}|>{\centering\arraybackslash}p{2.7cm}|}
+    \hline
+    \textbf{No.} &
+    \multicolumn{1}{>{\centering\arraybackslash}p{4.8cm}|}{\textbf{Domain Topik}} &
+    \textbf{Jumlah Sampel} &
+    \textbf{Persentase (\%)} \\
+    \hline
+    1 & \textit{Brainstorming} & 70 & 13,49 \\
+    \hline
+    2 & \textit{Translation} & 56 & 10,79 \\
+    \hline
+    3 & \textit{Logic} & 53 & 10,21 \\
+    \hline
+    4 & \textit{Summarization} & 50 & 9,63 \\
+    \hline
+    5 & \textit{Analysis} & 50 & 9,63 \\
+    \hline
+    6 & \textit{Open Question} & 50 & 9,63 \\
+    \hline
+    7 & \textit{Coding} & 50 & 9,63 \\
+    \hline
+    8 & \textit{Math} & 49 & 9,44 \\
+    \hline
+    9 & \textit{Safety} & 46 & 8,86 \\
+    \hline
+    10 & \textit{Creative Writing} & 45 & 8,67 \\
+    \hline
+    \multicolumn{2}{|c|}{\textbf{Total}} & \textbf{519} & \textbf{100,00} \\
+    \hline
+  \end{tabular}
+  }
+\end{table}
+
+Berdasarkan Tabel~\ref{tab:distribusi_domain_indopref}, ke-519 sampel bahan pengujian tersebar di sepuluh domain topik dengan jumlah sampel berkisar antara 45 sampel pada \textit{Creative Writing} (8,67\%) hingga 70 sampel pada \textit{Brainstorming} (13,49\%), dengan selisih 0,02\% akibat pembulatan dua angka desimal pada tiap baris. Sepuluh domain tersebut meliputi tugas penulisan terbuka dan kreatif, pemahaman serta penerjemahan teks, penalaran terstruktur (\textit{Logic}, \textit{Math}, dan \textit{Coding}), hingga penilaian keamanan respons (\textit{Safety}).
+
+% ------------------------------------------------------------------------------
+% 3.3 Diagram Alir Penelitian
+% ------------------------------------------------------------------------------
+\section{Diagram Alir Penelitian}
+
+Tahapan penelitian dirancang secara sistematis mulai dari identifikasi masalah dan studi literatur hingga analisis hasil serta penarikan kesimpulan. Alur pelaksanaan penelitian secara keseluruhan disajikan dalam bentuk diagram alir pada Gambar~\ref{fig:diagram_alir_penelitian}.
+
+\begin{figure}[H]
+  \centering
+  {\small
+  \linespread{1.05}\selectfont
+  \begin{tikzpicture}[
+    term/.style={
+      rounded rectangle,
+      minimum width=3.4cm,
+      minimum height=0.82cm,
+      align=center,
+      draw=black,
+      line width=0.75pt,
+      fill=white
+    },
+    proc/.style={
+      rectangle,
+      text width=6.8cm,
+      minimum height=0.95cm,
+      align=center,
+      draw=black,
+      line width=0.75pt,
+      fill=white,
+      inner sep=5pt
+    },
+    io/.style={
+      trapezium,
+      trapezium left angle=75,
+      trapezium right angle=105,
+      text width=6.0cm,
+      minimum height=0.95cm,
+      align=center,
+      draw=black,
+      line width=0.75pt,
+      fill=white,
+      inner xsep=5pt,
+      inner ysep=5pt
+    },
+    prepbranch/.style={
+      signal,
+      signal to=east and west,
+      signal pointer angle=115,
+      text width=4.6cm,
+      minimum height=1.15cm,
+      align=center,
+      draw=black,
+      line width=0.75pt,
+      fill=white,
+      inner xsep=4pt,
+      inner ysep=5pt
+    },
+    line/.style={
+      draw=black,
+      line width=0.75pt
+    },
+    arr/.style={
+      draw=black,
+      line width=0.75pt,
+      -{Stealth[length=2.4mm, width=1.8mm]}
+    }
+  ]
+    \node[term] (start) {Mulai};
+
+    \node[proc, below=0.65cm of start] (t1) {Identifikasi Masalah dan Studi Literatur};
+
+    \node[io, below=0.65cm of t1] (t2) {Penyiapan Data Pengujian IndoPref};
+
+    \coordinate[below=0.45cm of t2.south] (split);
+
+    \node[prepbranch, below left=0.50cm and 0.45cm of split] (t3a) {Perancangan Variasi \textit{Prompt}\\(P1, P2, dan P3)};
+
+    \node[prepbranch, below right=0.50cm and 0.45cm of split] (t3b) {Perancangan Posisi Kandidat\\(Urutan A--B dan B--A)};
+
+    \path (t3a.south) -- (t3b.south) coordinate[midway, yshift=-0.45cm] (merge);
+
+    \node[proc, below=0.50cm of merge] (t4) {Konfigurasi Model dan Eksperimen Inferensi};
+
+    \node[proc, below=0.65cm of t4] (t5) {Ekstraksi Keputusan dan Evaluasi Metrik};
+
+    \node[io, below=0.65cm of t5] (t6) {Analisis Hasil dan Penarikan Kesimpulan};
+
+    \node[term, below=0.65cm of t6] (stop) {Selesai};
+
+    \draw[arr] (start) -- (t1);
+    \draw[arr] (t1) -- (t2);
+    \draw[line] (t2.south) -- (split);
+    \draw[arr] (split) -| (t3a.north);
+    \draw[arr] (split) -| (t3b.north);
+    \draw[line] (t3a.south) |- (merge);
+    \draw[line] (t3b.south) |- (merge);
+    \draw[arr] (merge) -- (t4.north);
+    \draw[arr] (t4) -- (t5);
+    \draw[arr] (t5) -- (t6);
+    \draw[arr] (t6) -- (stop);
+  \end{tikzpicture}
+  }
+  {\footnotesize\linespread{1.0}\selectfont
+  \let\normalsize\footnotesize
+  \setlength{\abovecaptionskip}{6pt}
+  \setlength{\belowcaptionskip}{0pt}
+  \caption{Diagram alir penelitian.}
+  \label{fig:diagram_alir_penelitian}
+  }
 \end{figure}
 
-Atau dalam bentuk algoritma seperti contoh pada Algoritma \ref{Algo:FVDM} berikut ini:
+Gambar~\ref{fig:diagram_alir_penelitian} memuat enam tahapan pelaksanaan penelitian yang menjadi acuan penyajian hasil pada Subbab~4.1. Penjelasan mengenai masing-masing tahapan pada diagram alir tersebut adalah sebagai berikut:
 
-\begin{algorithm}
- \begin{algorithmic}[1]
-    \Procedure{FVDM}{$Tfinal, \Delta t$}
-    \State \text{Start}
-	\State \textbf{For }$n=1:N$\textbf{ do} \Comment{Pemberian nilai awal}
-	\State \hspace{0.5cm} Input nilai $x[n]$
-	\State \textbf{EndFor}
-	\State \text{time=0}
-	\While{$time < Tfinal$}
-	\State \hspace{0.5cm} $time=time +\Delta t$
-	\State \hspace{0.5cm} \textbf{If}( $S(n) \leq 0 m)$ \textbf{then return End If}.
-    \State \hspace{0.5cm} \hspace{0.5cm} \text{OUTPUT }Cetak hasil data.
-	\EndWhile
-	\State \text{End}
- \EndProcedure
- \end{algorithmic}
- \caption{Prosedur simulasi algoritma.}\label{Algo:FVDM}
-\end{algorithm}
+\begin{enumerate}
+  \item \textbf{Identifikasi Masalah dan Studi Literatur}
+
+  Penelitian diawali dengan mengidentifikasi permasalahan reliabilitas \textit{LLM-as-a-Judge} dalam evaluasi berpasangan, khususnya ketidakkonsistenan keputusan saat urutan posisi kandidat ditukar (\textit{position bias}) \cite{zhengJudgingLLMasaJudgeMTBench2023}\cite{shiJudgingJudgesSystematic}, kepekaan terhadap perbedaan redaksi instruksi (\textit{prompt sensitivity}) \cite{weiSystematicEvaluationLLMasaJudge2025}\cite{bellibatluJudgeSenseBenchmarkPrompt2026}, perlunya koreksi metrik kesepakatan terhadap peluang acak \cite{normanReliabilityValiditySystematic2026}\cite{raoAgreementMetricsLLMasJudge2026}, serta masih terbatasnya pengujian reliabilitas penilai otomatis pada teks asli Bahasa Indonesia \cite{dogruozChallengesRecommendationsLLMasaJudge2026}\cite{wiyonoIndoPrefMultiDomainPairwise2025}. Berdasarkan kajian literatur tersebut, disusun rumusan masalah, batasan penelitian, hipotesis penelitian, serta metrik evaluasi yang digunakan dalam pengujian.
+
+  \item \textbf{Penyiapan Data Pengujian IndoPref}
+
+  Pada tahap kedua, disusun prosedur prapemrosesan terhadap dataset sekunder IndoPref sebelum digunakan dalam eksperimen. Prosedur ini meliputi pengambilan data dari repositori sumber, pemeriksaan kelengkapan nilai pada keenam atribut (\texttt{original\_id}, \texttt{domain}, \texttt{input}, \texttt{response\_1}, \texttt{response\_2}, dan \texttt{actual\_score}) untuk memastikan tidak terdapat nilai kosong (\textit{null}) atau string kosong, serta penyaringan duplikasi secara deterministik dengan mengambil baris pertama pada setiap kode instruksi asal (\texttt{original\_id}). Pada setiap sampel unik, teks \texttt{response\_1} ditetapkan sebagai Kandidat Pertama dan \texttt{response\_2} sebagai Kandidat Kedua, sedangkan nilai \texttt{actual\_score} $< 0{,}5$ dipetakan menjadi label acuan \texttt{A} (Kandidat Pertama) dan \texttt{actual\_score} $\ge 0{,}5$ dipetakan menjadi label acuan \texttt{B} (Kandidat Kedua).
+
+  \item \textbf{Perancangan Variasi \textit{Prompt} dan Posisi Kandidat}
+
+  Pada tahap ketiga, dilakukan perancangan dua faktor perlakuan eksperimen secara paralel sebagaimana ditunjukkan oleh dua cabang pada Gambar~\ref{fig:diagram_alir_penelitian}, yaitu perancangan variasi \textit{prompt} dan perancangan posisi kandidat. Untuk cabang pertama, disusun satu pesan sistem (\textit{system prompt}) yang seragam dan tiga variasi formulasi \textit{user prompt} berbahasa Indonesia yang setara secara semantik (P1, P2, dan P3) sebagaimana disajikan pada Tabel~\ref{tab:formulasi_prompt}.
+
+\begin{table}[H]
+  \hspace*{\leftmargini}\begin{minipage}{\dimexpr\textwidth-\leftmargini\relax}
+  \centering
+  {\footnotesize
+  \linespread{1.00}\selectfont
+  \let\normalsize\footnotesize
+  \setlength{\abovecaptionskip}{0pt}
+  \setlength{\belowcaptionskip}{\baselineskip}
+  \caption{Rancangan \textit{system prompt} dan formulasi \textit{user prompt} evaluasi.}
+  \label{tab:formulasi_prompt}
+  \renewcommand{\arraystretch}{1.14}
+  \setlength{\tabcolsep}{5pt}
+  \begin{tabular}{|>{\raggedright\arraybackslash}p{2.35cm}|>{\raggedright\arraybackslash}p{2.25cm}|>{\raggedright\arraybackslash}p{7.24cm}|}
+    \hline
+    \multicolumn{1}{|>{\centering\arraybackslash}p{2.35cm}|}{\textbf{Komponen}} &
+    \multicolumn{1}{>{\centering\arraybackslash}p{2.25cm}|}{\textbf{Pendekatan}} &
+    \multicolumn{1}{>{\centering\arraybackslash}p{7.24cm}|}{\textbf{Rincian Teks \textit{Prompt}}} \\
+    \hline
+    \textit{System Prompt} & Penetapan peran penilai objektif (P1, P2, dan P3) & \texttt{Anda adalah evaluator AI yang objektif. Anda tidak memiliki bias posisi. Jawab HANYA dengan pilihan kandidat (A atau B).} \\
+    \hline
+    Formulasi P1\newline(\textit{User Prompt}) & \textit{Baseline} perbandingan holistik langsung & \texttt{\#\#\# TUGAS}\newline
+    \texttt{Bandingkan dua respons AI di bawah ini untuk instruksi yang sama. Pilih mana yang secara keseluruhan lebih baik.}\vspace{2.5pt}\newline
+    \texttt{\#\#\# INSTRUKSI}\newline
+    \texttt{\{input\_text\}}\vspace{2.5pt}\newline
+    \texttt{\#\#\# RESPONS A}\newline
+    \texttt{\{resp\_A\}}\vspace{2.5pt}\newline
+    \texttt{\#\#\# RESPONS B}\newline
+    \texttt{\{resp\_B\}}\vspace{2.5pt}\newline
+    \texttt{\#\#\# FORMAT JAWABAN}\newline
+    \texttt{Keluarkan HANYA satu huruf: A atau B. Dilarang menulis alasan atau teks lain.} \\
+    \hline
+    Formulasi P2\newline(\textit{User Prompt}) & Rubrik multi-kriteria eksplisit & \texttt{\#\#\# TUGAS}\newline
+    \texttt{Nilai dua respons AI berikut berdasarkan: Akurasi (kebenaran), Relevansi (menjawab instruksi), dan Kejelasan (tidak bertele-tele).}\vspace{2.5pt}\newline
+    \texttt{\#\#\# INSTRUKSI}\newline
+    \texttt{\{input\_text\}}\vspace{2.5pt}\newline
+    \texttt{\#\#\# RESPONS A}\newline
+    \texttt{\{resp\_A\}}\vspace{2.5pt}\newline
+    \texttt{\#\#\# RESPONS B}\newline
+    \texttt{\{resp\_B\}}\vspace{2.5pt}\newline
+    \texttt{\#\#\# FORMAT JAWABAN}\newline
+    \texttt{Berdasarkan kriteria di atas, keluarkan HANYA satu huruf: A atau B. Dilarang memberikan penjelasan.} \\
+    \hline
+    Formulasi P3\newline(\textit{User Prompt}) & Aturan ketat mitigasi bias & \texttt{\#\#\# TUGAS}\newline
+    \texttt{Tentukan respons terbaik untuk instruksi di bawah ini.}\vspace{2.5pt}\newline
+    \texttt{\#\#\# INSTRUKSI}\newline
+    \texttt{\{input\_text\}}\vspace{2.5pt}\newline
+    \texttt{\#\#\# RESPONS A}\newline
+    \texttt{\{resp\_A\}}\vspace{2.5pt}\newline
+    \texttt{\#\#\# RESPONS B}\newline
+    \texttt{\{resp\_B\}}\vspace{2.5pt}\newline
+    \texttt{\#\#\# ATURAN KETAT}\newline
+    \texttt{- Abaikan urutan kemunculan respons (jangan bias posisi).}\newline
+    \texttt{- Abaikan panjang respons (jangan bias verbosity).}\newline
+    \texttt{- FORMAT JAWABAN WAJIB: Keluarkan hanya karakter A atau B.} \\
+    \hline
+  \end{tabular}
+  }
+  \end{minipage}
+\end{table}
+
+  Berdasarkan Tabel~\ref{tab:formulasi_prompt}, bagian \textit{placeholder} \texttt{\{input\_text\}}, \texttt{\{resp\_A\}}, dan \texttt{\{resp\_B\}} pada \textit{template} diisi dengan teks instruksi masukan serta pasangan respons kandidat untuk slot pertama dan slot kedua. Ketiga formulasi tetap memberikan tugas pemilihan respons terbaik dengan batasan keluaran satu huruf (\texttt{A} atau \texttt{B}) tanpa penalaran \textit{Chain-of-Thought}, namun memiliki perbedaan pada cara penyampaian pedoman penilaian: P1 meminta perbandingan menyeluruh secara langsung \cite{zhengJudgingLLMasaJudgeMTBench2023}, P2 merinci kriteria penilaian menjadi akurasi, relevansi, dan kejelasan \cite{guSurveyLLMasaJudge2025}\cite{liLLMsasJudgesComprehensiveSurvey2024}, sedangkan P3 menambahkan aturan eksplisit untuk mengabaikan urutan kemunculan dan panjang respons (\textit{verbosity bias}) \cite{zhengJudgingLLMasaJudgeMTBench2023}\cite{anghelDiagnosingBiasInstability2025}.
+
+  Untuk faktor kedua, disusun skema pertukaran kandidat (\textit{candidate swapping}) guna menguji setiap formulasi \textit{prompt} pada dua urutan posisi kandidat. Label bagian \texttt{\#\#\# RESPONS A} tetap diletakkan pada posisi pertama dan \texttt{\#\#\# RESPONS B} pada posisi kedua, sedangkan teks kandidat yang dimasukkan ke kedua slot tersebut dipertukarkan sebagaimana dirinci pada Tabel~\ref{tab:skema_pertukaran_posisi}.
+
+\begin{table}[H]
+  \hspace*{\leftmargini}\begin{minipage}{\dimexpr\textwidth-\leftmargini\relax}
+  \centering
+  {\footnotesize
+  \linespread{1.04}\selectfont
+  \let\normalsize\footnotesize
+  \setlength{\abovecaptionskip}{0pt}
+  \setlength{\belowcaptionskip}{\baselineskip}
+  \caption{Skema penempatan kandidat pada urutan A--B dan B--A.}
+  \label{tab:skema_pertukaran_posisi}
+  \renewcommand{\arraystretch}{1.16}
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{|>{\centering\arraybackslash}p{1.60cm}|>{\raggedright\arraybackslash}p{2.38cm}|>{\raggedright\arraybackslash}p{2.38cm}|>{\raggedright\arraybackslash}p{2.30cm}|>{\raggedright\arraybackslash}p{2.80cm}|}
+    \hline
+    \textbf{Urutan Posisi} &
+    \multicolumn{1}{>{\centering\arraybackslash}p{2.38cm}|}{\textbf{Isi Slot Pertama}\newline{\scriptsize(\texttt{\#\#\# RESPONS A})}} &
+    \multicolumn{1}{>{\centering\arraybackslash}p{2.38cm}|}{\textbf{Isi Slot Kedua}\newline{\scriptsize(\texttt{\#\#\# RESPONS B})}} &
+    \multicolumn{1}{>{\centering\arraybackslash}p{2.30cm}|}{\textbf{Label Acuan pada Slot}} &
+    \multicolumn{1}{>{\centering\arraybackslash}p{2.80cm}|}{\textbf{Pemetaan Keputusan ke Kandidat Asli}} \\
+    \hline
+    A--B (Standar) & Kandidat Pertama & Kandidat Kedua & Tetap sesuai urutan kandidat asli & Keputusan \texttt{A} $\rightarrow$ Kandidat Pertama;\newline Keputusan \texttt{B} $\rightarrow$ Kandidat Kedua \\
+    \hline
+    B--A (Terbalik) & Kandidat Kedua & Kandidat Pertama & Dibalik mengikuti pertukaran slot & Keputusan \texttt{A} $\rightarrow$ Kandidat Kedua;\newline Keputusan \texttt{B} $\rightarrow$ Kandidat Pertama \\
+    \hline
+  \end{tabular}
+  }
+  \end{minipage}
+\end{table}
+
+  Tabel~\ref{tab:skema_pertukaran_posisi} membedakan antara label posisi yang dipilih model di dalam \textit{prompt} (\texttt{A} untuk slot pertama atau \texttt{B} untuk slot kedua) dan identitas kandidat asli yang dipilih. Pada urutan B--A, pilihan \texttt{A} mengacu pada teks di slot pertama yang berisi Kandidat Kedua, sehingga keputusan tersebut dipetakan kembali menjadi Kandidat Kedua. Dengan pemetaan ini, konsistensi keputusan antara urutan A--B dan B--A diukur berdasarkan kesamaan kandidat asli yang dipilih, sedangkan kecenderungan model terhadap urutan penyajian diukur dari proporsi pemilihan slot pertama (\texttt{A}) pada kedua urutan (\textit{first-position preference rate}).
+
+  \item \textbf{Konfigurasi Model dan Eksperimen Inferensi}
+
+  Pada tahap keempat, ditetapkan konfigurasi pemuatan model \texttt{Qwen/\allowbreak Qwen3-\allowbreak 32B} beserta \textit{tokenizer} bawaannya pada memori GPU menggunakan kuantisasi 8-bit (\texttt{int8}) dan tipe data komputasi \textit{Float16} \cite{dettmersQLoRAEfficientFinetuning2023}. Pasangan \textit{system prompt} dan \textit{user prompt} pada setiap skenario kemudian disusun mengikuti format \textit{chat template} Qwen3 dalam mode \textit{non-thinking}. Kombinasi dari 519 sampel data pengujian, tiga variasi formulasi \textit{prompt} (P1, P2, dan P3), serta dua urutan posisi kandidat (A--B dan B--A) menghasilkan rancangan pengujian berjumlah $519 \times 3 \times 2 = 3.114$ skenario inferensi. Setiap skenario dijalankan menggunakan dekoding \textit{greedy} deterministik (\texttt{do\_sample=False}) dengan batas maksimum 10 token keluaran baru serta dilengkapi penyimpanan bertahap (\textit{checkpointing}) dalam format JSONL.
+
+  \item \textbf{Ekstraksi Keputusan dan Evaluasi Metrik}
+
+  Tahap kelima mencakup proses ekstraksi keputusan dari teks keluaran mentah pada setiap skenario inferensi menggunakan ekspresi reguler berbasis batas kata (\textit{word-boundary regex}) untuk mengambil karakter tunggal \texttt{A} atau \texttt{B}. Apabila keluaran model tidak memuat salah satu karakter tersebut secara jelas, skenario ditandai sebagai \textit{invalid}, dihitung proporsinya ke dalam \textit{invalid rate}, dan dipisahkan tanpa dimasukkan ke salah satu kelas kandidat \cite{raoAgreementMetricsLLMasJudge2026}. Keputusan biner yang valid selanjutnya dipetakan kembali ke identitas kandidat asli sesuai Tabel~\ref{tab:skema_pertukaran_posisi} untuk menghitung metrik kesepakatan terhadap preferensi manusia (\textit{accuracy} dan Cohen's $\kappa$), konsistensi serta arah bias posisi (\textit{position consistency}, \textit{preference flip rate}, dan \textit{first-position preference rate}), serta konsistensi lintas formulasi \textit{prompt} (\textit{prompt consistency} dan \textit{prompt flip rate}).
+
+  \item \textbf{Analisis Hasil dan Penarikan Kesimpulan}
+
+  Pada tahap akhir, dilakukan analisis terhadap nilai ketujuh metrik reliabilitas, rincian kesepakatan per domain topik, rentang kepercayaan 95\%, serta hasil uji McNemar pada Persamaan~(\ref{eq:mcnemar_cc}). Pengujian Hipotesis~1 dilakukan dengan membandingkan konsistensi dan kesepakatan keputusan antara urutan posisi A--B dan B--A, sedangkan pengujian Hipotesis~2 dilakukan dengan membandingkan perubahan keputusan serta kesepakatan lintas formulasi \textit{prompt} P1, P2, dan P3. Seluruh temuan tersebut kemudian dirangkum menjadi kesimpulan untuk menjawab ketiga rumusan masalah penelitian.
+  \end{enumerate}
+\newpage

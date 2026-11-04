@@ -455,3 +455,59 @@
   keywords = {Computer Science - Artificial Intelligence,Computer Science - Computation and Language},
   file = {C:\Users\USER\Zotero\storage\JEMNUBQL\Zhou et al. - 2026 - Fairness or Fluency An Investigation into Language Bias of Pairwise LLM-as-a-Judge.pdf}
 }
+
+@misc{yangQwen3TechnicalReport2025,
+  title = {Qwen3 {{Technical Report}}},
+  author = {Yang, An and Li, Anfeng and Yang, Baosong and Zhang, Beichen and Hui, Binyuan and Zheng, Bo and Yu, Bowen and Gao, Chang and Huang, Chengen and Lv, Chenxu and Zheng, Chujie and Liu, Dayiheng and Zhou, Fan and Huang, Fei and Hu, Feng and Ge, Hao and Wei, Haoran and Lin, Huan and Tang, Jialong and Yang, Jian and Tu, Jianhong and Zhang, Jianwei and Yang, Jianxin and Yang, Jiaxi and Zhou, Jing and Zhou, Jingren and Lin, Junyang and Dang, Kai and Bao, Keqin and Yang, Kexin and Yu, Le and Deng, Lianghao and Li, Mei and Xue, Mingfeng and Li, Mingze and Zhang, Pei and Wang, Peng and Zhu, Qin and Men, Rui and Gao, Ruize and Liu, Shixuan and Luo, Shuang and Li, Tianhao and Tang, Tianyi and Yin, Wenbiao and Ren, Xingzhang and Wang, Xinyu and Zhang, Xinyu and Ren, Xuancheng and Fan, Yang and Su, Yang and Zhang, Yichang and Zhang, Yinger and Wan, Yu and Liu, Yuqiong and Wang, Zekun and Cui, Zeyu and Zhang, Zhenru and Zhou, Zhipeng and Qiu, Zihan},
+  year = 2025,
+  month = may,
+  number = {arXiv:2505.09388},
+  eprint = {2505.09388},
+  primaryclass = {cs.CL},
+  publisher = {arXiv},
+  doi = {10.48550/arXiv.2505.09388},
+  urldate = {2026-11-01},
+  abstract = {In this work, we present Qwen3, the latest version of the Qwen model family. Qwen3 comprises a series of large language models (LLMs) designed to advance performance, efficiency, and multilingual capabilities. The Qwen3 series includes models of both dense and Mixture-of-Expert (MoE) architectures, with parameter scales ranging from 0.6 to 235 billion. A key innovation in Qwen3 is the integration of thinking mode (for complex, multi-step reasoning) and non-thinking mode (for rapid, context-driven responses) into a unified framework. This eliminates the need to switch between different models-----such as chat-optimized models (e.g., GPT-4o) and dedicated reasoning models (e.g., QwQ32B)-----and enables dynamic mode switching based on user queries or chat templates. Meanwhile, Qwen3 introduces a thinking budget mechanism, allowing users to allocate computational resources adaptively during inference, thereby balancing latency and performance based on task complexity. Moreover, by leveraging the knowledge from the flagship models, we significantly reduce the computational resources required to build smaller-scale models, while ensuring their highly competitive performance. Empirical evaluations demonstrate that Qwen3 achieves state-of-the-art results across diverse benchmarks, including tasks in code generation, mathematical reasoning, agent tasks, etc., competitive against larger MoE models and proprietary models. Compared to its predecessor Qwen2.5, Qwen3 expands multilingual support from 29 to 119 languages and dialects, enhancing global accessibility through improved cross-lingual understanding and generation capabilities. To facilitate reproducibility and community-driven research and development, all Qwen3 models are publicly accessible under Apache 2.0.},
+  archiveprefix = {arXiv},
+  langid = {english},
+  keywords = {Computer Science - Computation and Language},
+  file = {C:\Users\USER\Zotero\storage\VUE45JTU\Yang et al. - 2025 - Qwen3 Technical Report.pdf}
+}
+
+@misc{dettmersQLoRAEfficientFinetuning2023,
+  title = {{{QLoRA}}: {{Efficient Finetuning}} of {{Quantized LLMs}}},
+  shorttitle = {{{QLoRA}}},
+  author = {Dettmers, Tim and Pagnoni, Artidoro and Holtzman, Ari and Zettlemoyer, Luke},
+  year = 2023,
+  month = may,
+  number = {arXiv:2305.14314},
+  eprint = {2305.14314},
+  primaryclass = {cs.LG},
+  publisher = {arXiv},
+  doi = {10.48550/arXiv.2305.14314},
+  urldate = {2026-11-01},
+  abstract = {We present QLoRA, an efficient finetuning approach that reduces memory usage enough to finetune a 65B parameter model on a single 48GB GPU while preserving full 16-bit finetuning task performance. QLoRA backpropagates gradients through a frozen, 4-bit quantized pretrained language model into Low Rank Adapters\textasciitilde (LoRA). Our best model family, which we name Guanaco, outperforms all previous openly released models on the Vicuna benchmark, reaching 99.3\% of the performance level of ChatGPT while only requiring 24 hours of finetuning on a single GPU. QLoRA introduces a number of innovations to save memory without sacrificing performance: (a) 4-bit NormalFloat (NF4), a new data type that is information theoretically optimal for normally distributed weights (b) double quantization to reduce the average memory footprint by quantizing the quantization constants, and (c) paged optimziers to manage memory spikes. We use QLoRA to finetune more than 1,000 models, providing a detailed analysis of instruction following and chatbot performance across 8 instruction datasets, multiple model types (LLaMA, T5), and model scales that would be infeasible to run with regular finetuning (e.g. 33B and 65B parameter models). Our results show that QLoRA finetuning on a small high-quality dataset leads to state-of-the-art results, even when using smaller models than the previous SoTA. We provide a detailed analysis of chatbot performance based on both human and GPT-4 evaluations showing that GPT-4 evaluations are a cheap and reasonable alternative to human evaluation. Furthermore, we find that current chatbot benchmarks are not trustworthy to accurately evaluate the performance levels of chatbots. A lemon-picked analysis demonstrates where Guanaco fails compared to ChatGPT. We release all of our models and code, including CUDA kernels for 4-bit training.},
+  archiveprefix = {arXiv},
+  langid = {english},
+  keywords = {Computer Science - Machine Learning},
+  file = {C:\Users\USER\Zotero\storage\6U3RL235\Dettmers et al. - 2023 - QLoRA Efficient Finetuning of Quantized LLMs.pdf}
+}
+
+@misc{chandrahasEvalciPythonLibrary2026,
+  title = {Evalci: {{A Python Library}} for {{Statistically Rigorous Comparison}} of {{Language Model Evaluations}}},
+  shorttitle = {Evalci},
+  author = {Chandrahas, Shreyas K.},
+  year = 2026,
+  month = jul,
+  number = {arXiv:2607.04429},
+  eprint = {2607.04429},
+  primaryclass = {cs.CL},
+  publisher = {arXiv},
+  doi = {10.48550/arXiv.2607.04429},
+  urldate = {2026-11-01},
+  abstract = {The dominant practice in language model evaluation is to report a single accuracy number per model and declare the higher one better, without testing whether the gap could plausibly be sampling noise. On benchmarks of a few thousand items, and under temperature sampling where a model can differ from itself run to run by more than the reported gap between models, this practice routinely overstates confidence in headline claims. The statistical machinery to fix this --confidence intervals, paired significance tests, power analysis, clustered standard errors, multiplecomparison correction -- is well established, but no standard, pip-installable tool packages it in the shape an evaluation actually takes: a per-item results table. We presentevalci, a purePython library (numpy/scipy/pandas only) that turns a per-item results table into a publicationready claim -- e.g., ``Model A beats Model B,∆ = 3.1pts, 95\% CI [1.2, 5.0], paired permutation p= 0.002,n= 1,319'' -- in one function call, with adapters forlm-evaluation-harnessand HELM output. Every routine is validated against an independent reference (statsmodels, or brute-force exact enumeration) rather than only against itself. As a case study, we reanalyze a public comparison of nine language models' MMLU accuracy and find that 3 of the 8 adjacent leaderboard-rank gaps are not statistically significant after correcting for the 36 pairwise comparisons the ranking implies.evalciis available athttps://pypi.org/project/evalci/ (source:https://github.com/Shreyaskc/evalci, DOI:https://doi.org/10.5281/zenodo. 21201815).},
+  archiveprefix = {arXiv},
+  langid = {english},
+  keywords = {Computer Science - Artificial Intelligence,Computer Science - Computation and Language},
+  file = {C:\Users\USER\Zotero\storage\ELZMS5UW\Chandrahas - 2026 - evalci A Python Library for Statistically Rigorous Comparison of Language Model Evaluations.pdf}
+}
