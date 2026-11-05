@@ -1,6 +1,6 @@
 # LLMReliability
 
-**Analisis Reliabilitas LLM-as-a-Judge pada Variasi Prompt dan Posisi Kandidat dalam Bahasa Indonesia**
+**Analisis Reliabilitas LLM-as-a-Judge pada Variasi Prompt dan Posisi Jawaban dalam Bahasa Indonesia**
 
 LLMReliability adalah *framework* eksperimental yang dirancang untuk mengukur tingkat konsistensi dan keandalan Large Language Model (LLM) ketika difungsikan sebagai penilai otomatis (*judge*) untuk respons berbahasa Indonesia.
 
