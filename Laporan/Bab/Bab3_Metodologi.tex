@@ -3,16 +3,16 @@
 % ------------------------------------------------------------------------------
 \chapter{METODE PENELITIAN}
 
-Pada bab ini dipaparkan metode penelitian yang digunakan untuk menganalisis reliabilitas \textit{LLM-as-a-Judge} terhadap variasi formulasi \textit{prompt} dan posisi kandidat respons dalam Bahasa Indonesia. Pembahasan disajikan secara berurutan meliputi subjek dan objek penelitian, alat dan bahan penelitian, serta diagram alir penelitian yang menjadi acuan penyajian hasil pada Bab~IV.
+Pada bab ini dipaparkan metode penelitian yang digunakan untuk menganalisis reliabilitas \textit{LLM-as-a-Judge} pada variasi \textit{prompt} dan posisi jawaban dalam Bahasa Indonesia. Pembahasan disajikan secara berurutan meliputi subjek dan objek penelitian, alat dan bahan penelitian, serta diagram alir penelitian yang menjadi acuan penyajian hasil pada Bab~IV.
 
 % ------------------------------------------------------------------------------
 % 3.1 Subjek dan Objek Penelitian
 % ------------------------------------------------------------------------------
 \section{Subjek dan Objek Penelitian}
 
-Subjek dalam penelitian ini adalah model bahasa besar sumber terbuka (\textit{open-weight}) \texttt{Qwen/\allowbreak Qwen3-\allowbreak 32B} \cite{yangQwen3TechnicalReport2025} yang digunakan sebagai sistem penilai otomatis berpasangan (\textit{pairwise LLM-as-a-Judge}). Model tersebut merupakan model bahasa kausal \textit{dense} berkapasitas 32 miliar parameter yang dilatih pada 36 triliun token lintas 119 bahasa dan dialek termasuk Bahasa Indonesia, serta dioperasikan dalam mode tanpa penalaran internal (\textit{non-thinking mode}) \cite{yangQwen3TechnicalReport2025}. Evaluasi dirancang sepenuhnya berbasis inferensi (\textit{inference-based evaluation}) tanpa pelatihan ulang atau \textit{fine-tuning} \cite{guSurveyLLMasaJudge2025}. Penggunaan satu model penilai tunggal ditetapkan untuk mengisolasi pengaruh perlakuan posisi kandidat dan formulasi \textit{prompt} agar tidak tercampur dengan perbedaan arsitektur antarmodel.
+Subjek dalam penelitian ini adalah model terbuka (\textit{open-weight}) \texttt{Qwen/\allowbreak Qwen3-\allowbreak 32B} \cite{yangQwen3TechnicalReport2025} yang digunakan sebagai penilai otomatis berpasangan (\textit{pairwise LLM-as-a-Judge}). Model ini merupakan model \textit{dense} berukuran 32 miliar parameter yang dilatih pada 36 triliun token lintas 119 bahasa dan dialek termasuk Bahasa Indonesia, serta dijalankan dalam mode respons langsung (\textit{non-thinking mode}) \cite{yangQwen3TechnicalReport2025}. Evaluasi dilakukan sepenuhnya berbasis inferensi (\textit{inference-based evaluation}) tanpa pelatihan ulang atau \textit{fine-tuning} \cite{guSurveyLLMasaJudge2025}. Penggunaan satu model penilai tunggal ditetapkan untuk memisahkan pengaruh perubahan posisi jawaban dan variasi \textit{prompt} agar tidak tercampur dengan perbedaan karakteristik antarmodel.
 
-Objek dalam penelitian ini adalah tingkat reliabilitas keputusan evaluasi berpasangan dari \texttt{Qwen/\allowbreak Qwen3-\allowbreak 32B} pada pasangan respons berbahasa Indonesia. Pengamatan terhadap objek tersebut difokuskan pada tingkat kesepakatan keputusan model terhadap label acuan preferensi manusia (\textit{reference human preference}), konsistensi serta kecenderungan arah keputusan ketika urutan kandidat ditukar antara urutan standar (A--B) dan urutan terbalik (B--A), serta konsistensi keputusan ketika menggunakan tiga variasi formulasi \textit{prompt} berbahasa Indonesia yang setara secara semantik (P1, P2, dan P3).
+Objek dalam penelitian ini adalah tingkat reliabilitas keputusan evaluasi berpasangan dari \texttt{Qwen/\allowbreak Qwen3-\allowbreak 32B} pada pasangan respons berbahasa Indonesia. Pengamatan terhadap objek tersebut difokuskan pada tingkat kesepakatan keputusan model terhadap label acuan preferensi manusia (\textit{reference human preference}), konsistensi serta kecenderungan arah keputusan ketika posisi jawaban ditukar antara urutan standar (A--B) dan urutan terbalik (B--A), serta konsistensi keputusan ketika menggunakan tiga variasi \textit{prompt} berbahasa Indonesia yang bermakna sama (P1, P2, dan P3).
 
 % ------------------------------------------------------------------------------
 % 3.2 Alat dan Bahan Penelitian
@@ -58,7 +58,7 @@ Alat penelitian mencakup perangkat keras komputasi untuk menjalankan inferensi m
     \hline
     Bahasa Pemrograman & Python~3 & Bahasa pemrograman utama pada Jupyter Notebook untuk implementasi skenario eksperimen, prapemrosesan data, dan evaluasi statistik. \\
     \hline
-    Pustaka Inferensi dan Kuantisasi & PyTorch, Transformers, BitsAndBytes, Accelerate & Pemuatan model bahasa kausal dan \textit{tokenizer}, konfigurasi kuantisasi 8-bit (\texttt{int8}), serta eksekusi inferensi model pada GPU. \\
+    Pustaka Inferensi dan Kuantisasi & PyTorch, Transformers, BitsAndBytes, Accelerate & Pemuatan model \texttt{Qwen/\allowbreak Qwen3-\allowbreak 32B} dan \textit{tokenizer}, konfigurasi kuantisasi 8-bit (\texttt{int8}), serta eksekusi inferensi model pada GPU. \\
     \hline
     Pustaka Pengolahan Data & Datasets, Pandas, NumPy, PyArrow & Pengambilan dataset sekunder, pemeriksaan kelengkapan atribut data, dan pengolahan tabel hasil pengujian. \\
     \hline
@@ -91,44 +91,44 @@ Selain perangkat komputasi, alat penelitian mencakup penetapan variabel bebas, v
     \multicolumn{1}{>{\centering\arraybackslash}p{3.15cm}|}{\textbf{Nama Variabel}} &
     \multicolumn{1}{>{\centering\arraybackslash}p{7.55cm}|}{\textbf{Definisi Operasional}} \\
     \hline
-    Variabel Bebas & Posisi Kandidat & Dua urutan penyajian kandidat pada \textit{prompt}, yaitu urutan standar A--B (kandidat pertama di slot pertama, kandidat kedua di slot kedua) dan urutan terbalik B--A (kandidat kedua di slot pertama, kandidat pertama di slot kedua). \\
+    Variabel Bebas & Posisi Jawaban & Dua urutan penempatan jawaban di dalam \textit{prompt}, yaitu urutan standar A--B (jawaban pertama di posisi A, jawaban kedua di posisi B) dan urutan terbalik B--A (jawaban kedua di posisi A, jawaban pertama di posisi B). \\
     \cline{2-3}
-     & Formulasi \textit{Prompt} & Tiga variasi instruksi evaluasi berbahasa Indonesia yang setara secara semantik dengan ruang jawaban biner (\texttt{A} atau \texttt{B}), terdiri atas \textit{baseline} holistik (P1), multi-kriteria (P2), dan mitigasi bias (P3). \\
+     & Variasi \textit{Prompt} & Tiga variasi instruksi evaluasi berbahasa Indonesia yang bermakna sama dengan pilihan jawaban biner (\texttt{A} atau \texttt{B}), terdiri atas \textit{baseline} perbandingan menyeluruh (P1), multi-kriteria (P2), dan mitigasi bias (P3). \\
     \hline
     Variabel Terikat & Kesepakatan terhadap \textit{Human Preference} & Tingkat kecocokan keputusan valid model terhadap label preferensi manusia yang diukur melalui \textit{Accuracy} dan koefisien Cohen's kappa ($\kappa$). \\
     \cline{2-3}
-     & Konsistensi Posisi Kandidat & Konsistensi keputusan terhadap pertukaran urutan A--B dan B--A serta arah kecenderungan posisi, diukur melalui \textit{Position Consistency}, \textit{Preference Flip Rate}, dan \textit{First-Position Preference Rate}. \\
+     & Konsistensi Posisi Jawaban & Konsistensi keputusan terhadap pertukaran urutan A--B dan B--A serta arah kecenderungan posisi, diukur melalui \textit{Position Consistency}, \textit{Preference Flip Rate}, dan \textit{First-Position Preference Rate}. \\
     \cline{2-3}
-     & Konsistensi Formulasi \textit{Prompt} & Konsistensi keputusan lintas formulasi P1, P2, dan P3 pada urutan kandidat tetap, diukur melalui \textit{Prompt Consistency} tiga arah dan \textit{Prompt Flip Rate} antarpasangan \textit{prompt}. \\
+     & Konsistensi Variasi \textit{Prompt} & Konsistensi keputusan lintas variasi P1, P2, dan P3 pada posisi jawaban yang sama, diukur melalui \textit{Prompt Consistency} tiga arah dan \textit{Prompt Flip Rate} antarpasangan \textit{prompt}. \\
     \hline
     Variabel Kontrol & Model dan Kuantisasi & Model tunggal \texttt{Qwen/\allowbreak Qwen3-\allowbreak 32B} dengan kuantisasi 8-bit (\texttt{int8}) dan tipe data \textit{Float16} \cite{dettmersQLoRAEfficientFinetuning2023}. \\
     \cline{2-3}
      & Struktur Pesan dan Dekoding & Pesan sistem (\textit{system prompt}) serta struktur \textit{chat template} Qwen3 dalam mode \textit{non-thinking} yang seragam, dekoding \textit{greedy} deterministik (\texttt{do\_sample=False}), dan batas maksimum 10 token keluaran baru. \\
     \cline{2-3}
-     & Data Pengujian & Himpunan 519 sampel pasangan respons unik IndoPref yang sama pada seluruh kombinasi uji. \\
+     & Data Pengujian & 519 sampel pasangan jawaban unik dari dataset IndoPref yang digunakan secara seragam pada seluruh kondisi pengujian. \\
     \hline
   \end{tabular}
   }
 \end{table}
 
-Tabel~\ref{tab:variabel_penelitian} menunjukkan bahwa pengujian disusun dengan prinsip pengubahan satu faktor dalam satu waktu (\textit{one factor at a time}). Penggunaan dekoding \textit{greedy} deterministik tanpa \textit{sampling} acak (\texttt{do\_sample=False}) bertujuan menghilangkan variasi keluaran antar-inferensi (\textit{decoding noise}) \cite{shiJudgingJudgesSystematic}\cite{normanReliabilityValiditySystematic2026}. Dengan pengaturan variabel kontrol tersebut, perbandingan antara urutan A--B dan B--A pada \textit{prompt} yang sama digunakan untuk menguji pengaruh posisi kandidat secara terpisah, sedangkan perbandingan antara formulasi P1, P2, dan P3 pada urutan posisi yang sama (urutan standar A--B) digunakan untuk menguji pengaruh variasi formulasi \textit{prompt}.
+Tabel~\ref{tab:variabel_penelitian} menunjukkan bahwa pengujian disusun dengan prinsip pengubahan satu faktor dalam satu waktu (\textit{one factor at a time}). Penggunaan dekoding \textit{greedy} deterministik tanpa \textit{sampling} acak (\texttt{do\_sample=False}) bertujuan menghilangkan variasi keluaran antar-inferensi (\textit{decoding noise}) \cite{shiJudgingJudgesSystematic}\cite{normanReliabilityValiditySystematic2026}. Dengan pengaturan variabel kontrol tersebut, perbandingan antara urutan A--B dan B--A pada \textit{prompt} yang sama digunakan untuk menguji pengaruh posisi jawaban secara terpisah, sedangkan perbandingan antara variasi P1, P2, dan P3 pada posisi jawaban yang sama (urutan standar A--B) digunakan untuk menguji pengaruh variasi \textit{prompt}.
 
-Perhitungan ketujuh metrik pada variabel terikat mengacu pada Persamaan~(\ref{eq:accuracy}) sampai dengan Persamaan~(\ref{eq:prompt_flip_rate}) pada Subbab~2.2. Seluruh persamaan tersebut diterapkan pada keputusan biner yang valid (\texttt{A} atau \texttt{B}), sedangkan keluaran yang tidak memuat pilihan valid dipisahkan dan dicatat proporsinya melalui \textit{invalid rate} \cite{raoAgreementMetricsLLMasJudge2026}. Metrik \textit{accuracy} dan Cohen's $\kappa$ dihitung baik pada kondisi acuan satu urutan (P1 urutan A--B) maupun pada gabungan dua urutan (A--B dan B--A) untuk setiap formulasi \textit{prompt} serta dirinci per domain topik. Selain nilai titik, estimasi Cohen's $\kappa$ dilengkapi rentang kepercayaan (\textit{confidence interval}) 95\% menggunakan metode \textit{non-parametric percentile bootstrap} sebanyak 500 iterasi pengambilan sampel ulang dengan pengembalian (\textit{resampling with replacement}, persentil ke-2,5 dan ke-97,5) \cite{chandrahasEvalciPythonLibrary2026}, sedangkan nilai \textit{accuracy} dilengkapi rentang kepercayaan normal (\textit{Wald} 95\% CI) sebesar $\hat{p} \pm 1{,}96\sqrt{\hat{p}(1-\hat{p})/n}$.
+Perhitungan ketujuh metrik pada variabel terikat mengacu pada Persamaan~(\ref{eq:accuracy}) sampai dengan Persamaan~(\ref{eq:prompt_flip_rate}) pada Subbab~2.2. Seluruh persamaan tersebut diterapkan pada keputusan biner yang valid (\texttt{A} atau \texttt{B}), sedangkan keluaran yang tidak memuat pilihan valid dipisahkan dan dicatat proporsinya melalui \textit{invalid rate} \cite{raoAgreementMetricsLLMasJudge2026}. Metrik \textit{accuracy} dan Cohen's $\kappa$ dihitung baik pada kondisi acuan satu urutan (P1 urutan A--B) maupun pada gabungan dua urutan (A--B dan B--A) untuk setiap variasi \textit{prompt} serta dirinci per domain topik. Selain nilai utama metrik, perhitungan Cohen's $\kappa$ dilengkapi rentang kepercayaan (\textit{confidence interval}) 95\% menggunakan metode \textit{non-parametric percentile bootstrap} sebanyak 500 iterasi pengambilan sampel ulang dengan pengembalian (\textit{resampling with replacement}, persentil ke-2,5 dan ke-97,5) \cite{chandrahasEvalciPythonLibrary2026}, sedangkan nilai \textit{accuracy} dilengkapi rentang kepercayaan normal (\textit{Wald} 95\% CI) sebesar $\hat{p} \pm 1{,}96\sqrt{\hat{p}(1-\hat{p})/n}$.
 
 Untuk menguji signifikansi ketidakseimbangan arah perubahan keputusan antara urutan A--B dan B--A, digunakan uji berpasangan McNemar dengan koreksi kontinuitas \cite{chandrahasEvalciPythonLibrary2026} sebagaimana dituliskan pada Persamaan~(\ref{eq:mcnemar_cc}):
 \begin{equation}
   \chi^2 = \frac{\left(|b - c| - 1\right)^2}{b + c}
   \label{eq:mcnemar_cc}
 \end{equation}
-dengan $b$ menyatakan jumlah pasangan berbeda (\textit{discordant pairs}) yang memilih kandidat pertama pada urutan A--B namun berbalik memilih kandidat kedua pada urutan B--A, dan $c$ menyatakan jumlah pasangan berbeda yang memilih kandidat kedua pada urutan A--B namun berbalik memilih kandidat pertama pada urutan B--A.
+dengan $b$ menyatakan jumlah pasangan berbeda (\textit{discordant pairs}) yang memilih jawaban pertama pada urutan A--B namun berbalik memilih jawaban kedua pada urutan B--A, dan $c$ menyatakan jumlah pasangan berbeda yang memilih jawaban kedua pada urutan A--B namun berbalik memilih jawaban pertama pada urutan B--A.
 
-Persamaan~(\ref{eq:mcnemar_cc}) menguji hipotesis nol bahwa perubahan keputusan akibat pertukaran urutan terjadi secara seimbang ke kedua arah ($H_0\!: p_b = p_c$) berdasarkan distribusi chi-kuadrat ($\chi^2$) dengan derajat kebebasan $\text{df} = 1$ dan taraf signifikansi $\alpha = 0{,}05$. Nilai $b$ menunjukkan jumlah sampel tidak konsisten yang memilih kandidat pada slot pertama di kedua urutan (\textit{primacy bias}), sedangkan nilai $c$ menunjukkan jumlah sampel tidak konsisten yang memilih kandidat pada slot kedua di kedua urutan (\textit{recency bias}). Berdasarkan kriteria uji tersebut, $H_0$ ditolak apabila nilai $p < 0{,}05$ (atau $\chi^2 \ge 3{,}841$), yang menandakan adanya kecenderungan arah posisi yang signifikan secara statistik antara urutan A--B dan B--A.
+Persamaan~(\ref{eq:mcnemar_cc}) menguji hipotesis nol bahwa perubahan keputusan akibat pertukaran urutan terjadi secara seimbang ke kedua arah ($H_0\!: p_b = p_c$) berdasarkan distribusi chi-kuadrat ($\chi^2$) dengan derajat kebebasan $\text{df} = 1$ dan taraf signifikansi $\alpha = 0{,}05$. Nilai $b$ menunjukkan jumlah sampel tidak konsisten yang memilih jawaban pada posisi pertama di kedua urutan (\textit{primacy bias}), sedangkan nilai $c$ menunjukkan jumlah sampel tidak konsisten yang memilih jawaban pada posisi kedua di kedua urutan (\textit{recency bias}). Berdasarkan kriteria uji tersebut, $H_0$ ditolak apabila nilai $p < 0{,}05$ (atau $\chi^2 \ge 3{,}841$), yang menandakan adanya kecenderungan arah posisi yang signifikan secara statistik antara urutan A--B dan B--A.
 
 \subsection{Bahan Penelitian}
 
-Bahan penelitian yang digunakan adalah data sekunder dari dataset terbuka IndoPref (\textit{A Multi-Domain Pairwise Preference Dataset for Indonesian}) yang dikembangkan oleh Wiyono dkk.\ \cite{wiyonoIndoPrefMultiDomainPairwise2025} di bawah lisensi CC~BY~4.0 pada repositori Hugging Face (\texttt{davidanugraha/IndoPref}). Dataset ini memuat 4.099 perbandingan preferensi berpasangan yang dibangun dari 522 instruksi asli penutur Bahasa Indonesia lintas 10 domain topik dengan pasangan respons dari lima model bahasa \textit{instruction-tuned} serta kesepakatan antar-anotator Krippendorff's $\alpha = 0{,}891$ \cite{wiyonoIndoPrefMultiDomainPairwise2025}. Sesuai batasan penelitian, label preferensi manusia pada IndoPref digunakan langsung sebagai \textit{reference human preference} tanpa proses anotasi baru.
+Bahan penelitian yang digunakan adalah data sekunder dari dataset terbuka IndoPref (\textit{A Multi-Domain Pairwise Preference Dataset for Indonesian}) yang dikembangkan oleh Wiyono dkk.\ \cite{wiyonoIndoPrefMultiDomainPairwise2025} di bawah lisensi CC~BY~4.0 pada repositori Hugging Face (\texttt{davidanugraha/IndoPref}). Dataset ini memuat 4.099 perbandingan preferensi berpasangan yang disusun dari 522 instruksi berbahasa Indonesia dan dinilai langsung oleh anotator berbahasa Indonesia lintas 10 domain topik atas respons lima model bahasa \textit{instruction-tuned}, dengan tingkat kesepakatan antar-anotator Krippendorff's $\alpha = 0{,}891$ \cite{wiyonoIndoPrefMultiDomainPairwise2025}. Sesuai batasan penelitian, label preferensi manusia pada IndoPref digunakan langsung sebagai \textit{reference human preference} tanpa proses anotasi baru.
 
-Struktur data IndoPref yang digunakan sebagai bahan penelitian mencakup enam atribut, yaitu kode pengenal instruksi asal (\texttt{original\_id}), kategori domain topik (\texttt{domain}), teks instruksi masukan berbahasa Indonesia (\texttt{input}), teks respons kandidat pertama (\texttt{response\_1}), teks respons kandidat kedua (\texttt{response\_2}), serta skor hasil anotasi manusia (\texttt{actual\_score}) yang menandai kandidat pemenang. Di dalam 4.099 baris perbandingan berpasangan pada dataset tersebut, terdapat 519 kode instruksi unik (\texttt{original\_id}) lintas 10 domain topik karena satu instruksi yang sama dipasangkan berulang kali untuk berbagai kombinasi model penjawab. Penelitian ini menggunakan satu pasangan respons untuk setiap kode instruksi asal sehingga bahan data pengujian berjumlah 519 sampel unik dengan sebaran per domain topik sebagaimana disajikan pada Tabel~\ref{tab:distribusi_domain_indopref}.
+Struktur data IndoPref yang digunakan sebagai bahan penelitian mencakup enam atribut, yaitu kode pengenal instruksi asal (\texttt{original\_id}), kategori domain topik (\texttt{domain}), teks instruksi masukan berbahasa Indonesia (\texttt{input}), teks jawaban pertama (\texttt{response\_1}), teks jawaban kedua (\texttt{response\_2}), serta skor hasil penilaian manusia (\texttt{actual\_score}) yang menentukan jawaban yang lebih baik. Di dalam 4.099 baris perbandingan berpasangan pada dataset tersebut, terdapat 519 kode instruksi unik (\texttt{original\_id}) lintas 10 domain topik karena satu instruksi yang sama dipasangkan berulang kali untuk berbagai kombinasi model penjawab. Penelitian ini menggunakan satu pasangan respons untuk setiap kode instruksi asal sehingga bahan data pengujian berjumlah 519 sampel unik dengan sebaran per domain topik sebagaimana disajikan pada Tabel~\ref{tab:distribusi_domain_indopref}.
 
 \begin{table}[H]
   \centering
@@ -255,7 +255,7 @@ Tahapan penelitian dirancang secara sistematis mulai dari identifikasi masalah d
 
     \node[prepbranch, below left=0.50cm and 0.45cm of split] (t3a) {Perancangan Variasi \textit{Prompt}\\(P1, P2, dan P3)};
 
-    \node[prepbranch, below right=0.50cm and 0.45cm of split] (t3b) {Perancangan Posisi Kandidat\\(Urutan A--B dan B--A)};
+    \node[prepbranch, below right=0.50cm and 0.45cm of split] (t3b) {Perancangan Posisi Jawaban\\(Urutan A--B dan B--A)};
 
     \path (t3a.south) -- (t3b.south) coordinate[midway, yshift=-0.45cm] (merge);
 
@@ -294,15 +294,15 @@ Gambar~\ref{fig:diagram_alir_penelitian} memuat enam tahapan pelaksanaan penelit
 \begin{enumerate}
   \item \textbf{Identifikasi Masalah dan Studi Literatur}
 
-  Penelitian diawali dengan mengidentifikasi permasalahan reliabilitas \textit{LLM-as-a-Judge} dalam evaluasi berpasangan, khususnya ketidakkonsistenan keputusan saat urutan posisi kandidat ditukar (\textit{position bias}) \cite{zhengJudgingLLMasaJudgeMTBench2023}\cite{shiJudgingJudgesSystematic}, kepekaan terhadap perbedaan redaksi instruksi (\textit{prompt sensitivity}) \cite{weiSystematicEvaluationLLMasaJudge2025}\cite{bellibatluJudgeSenseBenchmarkPrompt2026}, perlunya koreksi metrik kesepakatan terhadap peluang acak \cite{normanReliabilityValiditySystematic2026}\cite{raoAgreementMetricsLLMasJudge2026}, serta masih terbatasnya pengujian reliabilitas penilai otomatis pada teks asli Bahasa Indonesia \cite{dogruozChallengesRecommendationsLLMasaJudge2026}\cite{wiyonoIndoPrefMultiDomainPairwise2025}. Berdasarkan kajian literatur tersebut, disusun rumusan masalah, batasan penelitian, hipotesis penelitian, serta metrik evaluasi yang digunakan dalam pengujian.
+  Penelitian diawali dengan mengidentifikasi permasalahan reliabilitas \textit{LLM-as-a-Judge} dalam evaluasi berpasangan, khususnya ketidakkonsistenan keputusan saat urutan posisi jawaban ditukar (\textit{position bias}) \cite{zhengJudgingLLMasaJudgeMTBench2023}\cite{shiJudgingJudgesSystematic}, kepekaan terhadap variasi kalimat instruksi (\textit{prompt sensitivity}) \cite{weiSystematicEvaluationLLMasaJudge2025}\cite{bellibatluJudgeSenseBenchmarkPrompt2026}, perlunya koreksi metrik kesepakatan terhadap peluang kebetulan \cite{normanReliabilityValiditySystematic2026}\cite{raoAgreementMetricsLLMasJudge2026}, serta masih terbatasnya pengujian reliabilitas penilai otomatis pada teks asli Bahasa Indonesia \cite{dogruozChallengesRecommendationsLLMasaJudge2026}\cite{wiyonoIndoPrefMultiDomainPairwise2025}. Berdasarkan kajian literatur tersebut, disusun rumusan masalah, batasan penelitian, hipotesis penelitian, serta metrik evaluasi yang digunakan dalam pengujian.
 
   \item \textbf{Penyiapan Data Pengujian IndoPref}
 
-  Pada tahap kedua, disusun prosedur prapemrosesan terhadap dataset sekunder IndoPref sebelum digunakan dalam eksperimen. Prosedur ini meliputi pengambilan data dari repositori sumber, pemeriksaan kelengkapan nilai pada keenam atribut (\texttt{original\_id}, \texttt{domain}, \texttt{input}, \texttt{response\_1}, \texttt{response\_2}, dan \texttt{actual\_score}) untuk memastikan tidak terdapat nilai kosong (\textit{null}) atau string kosong, serta penyaringan duplikasi secara deterministik dengan mengambil baris pertama pada setiap kode instruksi asal (\texttt{original\_id}). Pada setiap sampel unik, teks \texttt{response\_1} ditetapkan sebagai Kandidat Pertama dan \texttt{response\_2} sebagai Kandidat Kedua, sedangkan nilai \texttt{actual\_score} $< 0{,}5$ dipetakan menjadi label acuan \texttt{A} (Kandidat Pertama) dan \texttt{actual\_score} $\ge 0{,}5$ dipetakan menjadi label acuan \texttt{B} (Kandidat Kedua).
+  Pada tahap kedua, disusun prosedur prapemrosesan terhadap dataset sekunder IndoPref sebelum digunakan dalam eksperimen. Prosedur ini meliputi pengambilan data dari repositori sumber, pemeriksaan kelengkapan nilai pada keenam atribut (\texttt{original\_id}, \texttt{domain}, \texttt{input}, \texttt{response\_1}, \texttt{response\_2}, dan \texttt{actual\_score}) untuk memastikan tidak terdapat nilai kosong (\textit{null}) atau string kosong, serta penyaringan duplikasi dengan mengambil baris pertama pada setiap kode instruksi asal (\texttt{original\_id}). Pada setiap sampel unik, teks \texttt{response\_1} ditetapkan sebagai Jawaban Pertama dan \texttt{response\_2} sebagai Jawaban Kedua, sedangkan nilai \texttt{actual\_score} $< 0{,}5$ dipetakan menjadi label acuan \texttt{A} (Jawaban Pertama) dan \texttt{actual\_score} $\ge 0{,}5$ dipetakan menjadi label acuan \texttt{B} (Jawaban Kedua).
 
-  \item \textbf{Perancangan Variasi \textit{Prompt} dan Posisi Kandidat}
+  \item \textbf{Perancangan Variasi \textit{Prompt} dan Posisi Jawaban}
 
-  Pada tahap ketiga, dilakukan perancangan dua faktor perlakuan eksperimen secara paralel sebagaimana ditunjukkan oleh dua cabang pada Gambar~\ref{fig:diagram_alir_penelitian}, yaitu perancangan variasi \textit{prompt} dan perancangan posisi kandidat. Untuk cabang pertama, disusun satu pesan sistem (\textit{system prompt}) yang seragam dan tiga variasi formulasi \textit{user prompt} berbahasa Indonesia yang setara secara semantik (P1, P2, dan P3) sebagaimana disajikan pada Tabel~\ref{tab:formulasi_prompt}.
+  Pada tahap ketiga, dilakukan perancangan dua faktor perlakuan eksperimen secara paralel sebagaimana ditunjukkan oleh dua cabang pada Gambar~\ref{fig:diagram_alir_penelitian}, yaitu perancangan variasi \textit{prompt} dan perancangan posisi jawaban. Untuk cabang pertama, disusun satu pesan sistem (\textit{system prompt}) yang seragam dan tiga variasi \textit{user prompt} berbahasa Indonesia yang bermakna sama (P1, P2, dan P3) sebagaimana disajikan pada Tabel~\ref{tab:formulasi_prompt}.
 
 \begin{table}[H]
   \hspace*{\leftmargini}\begin{minipage}{\dimexpr\textwidth-\leftmargini\relax}
@@ -312,7 +312,7 @@ Gambar~\ref{fig:diagram_alir_penelitian} memuat enam tahapan pelaksanaan penelit
   \let\normalsize\footnotesize
   \setlength{\abovecaptionskip}{0pt}
   \setlength{\belowcaptionskip}{\baselineskip}
-  \caption{Rancangan \textit{system prompt} dan formulasi \textit{user prompt} evaluasi.}
+  \caption{Rancangan \textit{system prompt} dan variasi \textit{user prompt} evaluasi.}
   \label{tab:formulasi_prompt}
   \renewcommand{\arraystretch}{1.14}
   \setlength{\tabcolsep}{5pt}
@@ -324,7 +324,7 @@ Gambar~\ref{fig:diagram_alir_penelitian} memuat enam tahapan pelaksanaan penelit
     \hline
     \textit{System Prompt} & Penetapan peran penilai objektif (P1, P2, dan P3) & \texttt{Anda adalah evaluator AI yang objektif. Anda tidak memiliki bias posisi. Jawab HANYA dengan pilihan kandidat (A atau B).} \\
     \hline
-    Formulasi P1\newline(\textit{User Prompt}) & \textit{Baseline} perbandingan holistik langsung & \texttt{\#\#\# TUGAS}\newline
+    Variasi P1\newline(\textit{User Prompt}) & \textit{Baseline} perbandingan menyeluruh & \texttt{\#\#\# TUGAS}\newline
     \texttt{Bandingkan dua respons AI di bawah ini untuk instruksi yang sama. Pilih mana yang secara keseluruhan lebih baik.}\vspace{2.5pt}\newline
     \texttt{\#\#\# INSTRUKSI}\newline
     \texttt{\{input\_text\}}\vspace{2.5pt}\newline
@@ -335,7 +335,7 @@ Gambar~\ref{fig:diagram_alir_penelitian} memuat enam tahapan pelaksanaan penelit
     \texttt{\#\#\# FORMAT JAWABAN}\newline
     \texttt{Keluarkan HANYA satu huruf: A atau B. Dilarang menulis alasan atau teks lain.} \\
     \hline
-    Formulasi P2\newline(\textit{User Prompt}) & Rubrik multi-kriteria eksplisit & \texttt{\#\#\# TUGAS}\newline
+    Variasi P2\newline(\textit{User Prompt}) & Rubrik multi-kriteria eksplisit & \texttt{\#\#\# TUGAS}\newline
     \texttt{Nilai dua respons AI berikut berdasarkan: Akurasi (kebenaran), Relevansi (menjawab instruksi), dan Kejelasan (tidak bertele-tele).}\vspace{2.5pt}\newline
     \texttt{\#\#\# INSTRUKSI}\newline
     \texttt{\{input\_text\}}\vspace{2.5pt}\newline
@@ -346,7 +346,7 @@ Gambar~\ref{fig:diagram_alir_penelitian} memuat enam tahapan pelaksanaan penelit
     \texttt{\#\#\# FORMAT JAWABAN}\newline
     \texttt{Berdasarkan kriteria di atas, keluarkan HANYA satu huruf: A atau B. Dilarang memberikan penjelasan.} \\
     \hline
-    Formulasi P3\newline(\textit{User Prompt}) & Aturan ketat mitigasi bias & \texttt{\#\#\# TUGAS}\newline
+    Variasi P3\newline(\textit{User Prompt}) & Aturan ketat mitigasi bias & \texttt{\#\#\# TUGAS}\newline
     \texttt{Tentukan respons terbaik untuk instruksi di bawah ini.}\vspace{2.5pt}\newline
     \texttt{\#\#\# INSTRUKSI}\newline
     \texttt{\{input\_text\}}\vspace{2.5pt}\newline
@@ -364,9 +364,9 @@ Gambar~\ref{fig:diagram_alir_penelitian} memuat enam tahapan pelaksanaan penelit
   \end{minipage}
 \end{table}
 
-  Berdasarkan Tabel~\ref{tab:formulasi_prompt}, bagian \textit{placeholder} \texttt{\{input\_text\}}, \texttt{\{resp\_A\}}, dan \texttt{\{resp\_B\}} pada \textit{template} diisi dengan teks instruksi masukan serta pasangan respons kandidat untuk slot pertama dan slot kedua. Ketiga formulasi tetap memberikan tugas pemilihan respons terbaik dengan batasan keluaran satu huruf (\texttt{A} atau \texttt{B}) tanpa penalaran \textit{Chain-of-Thought}, namun memiliki perbedaan pada cara penyampaian pedoman penilaian: P1 meminta perbandingan menyeluruh secara langsung \cite{zhengJudgingLLMasaJudgeMTBench2023}, P2 merinci kriteria penilaian menjadi akurasi, relevansi, dan kejelasan \cite{guSurveyLLMasaJudge2025}\cite{liLLMsasJudgesComprehensiveSurvey2024}, sedangkan P3 menambahkan aturan eksplisit untuk mengabaikan urutan kemunculan dan panjang respons (\textit{verbosity bias}) \cite{zhengJudgingLLMasaJudgeMTBench2023}\cite{anghelDiagnosingBiasInstability2025}.
+  Berdasarkan Tabel~\ref{tab:formulasi_prompt}, bagian \textit{placeholder} \texttt{\{input\_text\}}, \texttt{\{resp\_A\}}, dan \texttt{\{resp\_B\}} pada \textit{template} diisi dengan teks instruksi masukan serta pasangan jawaban untuk posisi pertama dan posisi kedua. Ketiga variasi \textit{prompt} tetap memberikan tugas pemilihan respons terbaik dengan batasan keluaran satu huruf (\texttt{A} atau \texttt{B}) tanpa penalaran \textit{Chain-of-Thought}, namun memiliki perbedaan pada cara penyampaian pedoman penilaian: P1 meminta perbandingan menyeluruh secara langsung \cite{zhengJudgingLLMasaJudgeMTBench2023}, P2 merinci kriteria penilaian menjadi akurasi, relevansi, dan kejelasan \cite{guSurveyLLMasaJudge2025}\cite{liLLMsasJudgesComprehensiveSurvey2024}, sedangkan P3 menambahkan aturan eksplisit untuk mengabaikan urutan kemunculan dan panjang respons (\textit{verbosity bias}) \cite{zhengJudgingLLMasaJudgeMTBench2023}\cite{anghelDiagnosingBiasInstability2025}.
 
-  Untuk faktor kedua, disusun skema pertukaran kandidat (\textit{candidate swapping}) guna menguji setiap formulasi \textit{prompt} pada dua urutan posisi kandidat. Label bagian \texttt{\#\#\# RESPONS A} tetap diletakkan pada posisi pertama dan \texttt{\#\#\# RESPONS B} pada posisi kedua, sedangkan teks kandidat yang dimasukkan ke kedua slot tersebut dipertukarkan sebagaimana dirinci pada Tabel~\ref{tab:skema_pertukaran_posisi}.
+  Untuk faktor kedua, disusun skema pertukaran posisi jawaban guna menguji setiap variasi \textit{prompt} pada dua urutan posisi jawaban. Label bagian \texttt{\#\#\# RESPONS A} tetap diletakkan pada posisi pertama dan \texttt{\#\#\# RESPONS B} pada posisi kedua, sedangkan teks jawaban yang dimasukkan ke kedua posisi tersebut dipertukarkan sebagaimana dirinci pada Tabel~\ref{tab:skema_pertukaran_posisi}.
 
 \begin{table}[H]
   \hspace*{\leftmargini}\begin{minipage}{\dimexpr\textwidth-\leftmargini\relax}
@@ -376,39 +376,39 @@ Gambar~\ref{fig:diagram_alir_penelitian} memuat enam tahapan pelaksanaan penelit
   \let\normalsize\footnotesize
   \setlength{\abovecaptionskip}{0pt}
   \setlength{\belowcaptionskip}{\baselineskip}
-  \caption{Skema penempatan kandidat pada urutan A--B dan B--A.}
+  \caption{Skema penempatan posisi jawaban pada urutan A--B dan B--A.}
   \label{tab:skema_pertukaran_posisi}
   \renewcommand{\arraystretch}{1.16}
   \setlength{\tabcolsep}{4pt}
   \begin{tabular}{|>{\centering\arraybackslash}p{1.60cm}|>{\raggedright\arraybackslash}p{2.38cm}|>{\raggedright\arraybackslash}p{2.38cm}|>{\raggedright\arraybackslash}p{2.30cm}|>{\raggedright\arraybackslash}p{2.80cm}|}
     \hline
     \textbf{Urutan Posisi} &
-    \multicolumn{1}{>{\centering\arraybackslash}p{2.38cm}|}{\textbf{Isi Slot Pertama}\newline{\scriptsize(\texttt{\#\#\# RESPONS A})}} &
-    \multicolumn{1}{>{\centering\arraybackslash}p{2.38cm}|}{\textbf{Isi Slot Kedua}\newline{\scriptsize(\texttt{\#\#\# RESPONS B})}} &
-    \multicolumn{1}{>{\centering\arraybackslash}p{2.30cm}|}{\textbf{Label Acuan pada Slot}} &
-    \multicolumn{1}{>{\centering\arraybackslash}p{2.80cm}|}{\textbf{Pemetaan Keputusan ke Kandidat Asli}} \\
+    \multicolumn{1}{>{\centering\arraybackslash}p{2.38cm}|}{\textbf{Isi Posisi Pertama}\newline{\scriptsize(\texttt{\#\#\# RESPONS A})}} &
+    \multicolumn{1}{>{\centering\arraybackslash}p{2.38cm}|}{\textbf{Isi Posisi Kedua}\newline{\scriptsize(\texttt{\#\#\# RESPONS B})}} &
+    \multicolumn{1}{>{\centering\arraybackslash}p{2.30cm}|}{\textbf{Label Acuan pada Posisi}} &
+    \multicolumn{1}{>{\centering\arraybackslash}p{2.80cm}|}{\textbf{Pemetaan Keputusan ke Jawaban Asli}} \\
     \hline
-    A--B (Standar) & Kandidat Pertama & Kandidat Kedua & Tetap sesuai urutan kandidat asli & Keputusan \texttt{A} $\rightarrow$ Kandidat Pertama;\newline Keputusan \texttt{B} $\rightarrow$ Kandidat Kedua \\
+    A--B (Standar) & Jawaban Pertama & Jawaban Kedua & Tetap sesuai urutan jawaban asli & Keputusan \texttt{A} $\rightarrow$ Jawaban Pertama;\newline Keputusan \texttt{B} $\rightarrow$ Jawaban Kedua \\
     \hline
-    B--A (Terbalik) & Kandidat Kedua & Kandidat Pertama & Dibalik mengikuti pertukaran slot & Keputusan \texttt{A} $\rightarrow$ Kandidat Kedua;\newline Keputusan \texttt{B} $\rightarrow$ Kandidat Pertama \\
+    B--A (Terbalik) & Jawaban Kedua & Jawaban Pertama & Dibalik mengikuti pertukaran posisi & Keputusan \texttt{A} $\rightarrow$ Jawaban Kedua;\newline Keputusan \texttt{B} $\rightarrow$ Jawaban Pertama \\
     \hline
   \end{tabular}
   }
   \end{minipage}
 \end{table}
 
-  Tabel~\ref{tab:skema_pertukaran_posisi} membedakan antara label posisi yang dipilih model di dalam \textit{prompt} (\texttt{A} untuk slot pertama atau \texttt{B} untuk slot kedua) dan identitas kandidat asli yang dipilih. Pada urutan B--A, pilihan \texttt{A} mengacu pada teks di slot pertama yang berisi Kandidat Kedua, sehingga keputusan tersebut dipetakan kembali menjadi Kandidat Kedua. Dengan pemetaan ini, konsistensi keputusan antara urutan A--B dan B--A diukur berdasarkan kesamaan kandidat asli yang dipilih, sedangkan kecenderungan model terhadap urutan penyajian diukur dari proporsi pemilihan slot pertama (\texttt{A}) pada kedua urutan (\textit{first-position preference rate}).
+  Tabel~\ref{tab:skema_pertukaran_posisi} membedakan antara label posisi yang dipilih model di dalam \textit{prompt} (\texttt{A} untuk posisi pertama atau \texttt{B} untuk posisi kedua) dan identitas jawaban asli yang dipilih. Pada urutan B--A, pilihan \texttt{A} mengacu pada teks di posisi pertama yang berisi Jawaban Kedua, sehingga keputusan tersebut dipetakan kembali menjadi Jawaban Kedua. Dengan pemetaan ini, konsistensi keputusan antara urutan A--B dan B--A diukur berdasarkan kesamaan jawaban asli yang dipilih, sedangkan kecenderungan model terhadap urutan penyajian diukur dari proporsi pemilihan posisi pertama (\texttt{A}) pada kedua urutan (\textit{first-position preference rate}).
 
   \item \textbf{Konfigurasi Model dan Eksperimen Inferensi}
 
-  Pada tahap keempat, ditetapkan konfigurasi pemuatan model \texttt{Qwen/\allowbreak Qwen3-\allowbreak 32B} beserta \textit{tokenizer} bawaannya pada memori GPU menggunakan kuantisasi 8-bit (\texttt{int8}) dan tipe data komputasi \textit{Float16} \cite{dettmersQLoRAEfficientFinetuning2023}. Pasangan \textit{system prompt} dan \textit{user prompt} pada setiap skenario kemudian disusun mengikuti format \textit{chat template} Qwen3 dalam mode \textit{non-thinking}. Kombinasi dari 519 sampel data pengujian, tiga variasi formulasi \textit{prompt} (P1, P2, dan P3), serta dua urutan posisi kandidat (A--B dan B--A) menghasilkan rancangan pengujian berjumlah $519 \times 3 \times 2 = 3.114$ skenario inferensi. Setiap skenario dijalankan menggunakan dekoding \textit{greedy} deterministik (\texttt{do\_sample=False}) dengan batas maksimum 10 token keluaran baru serta dilengkapi penyimpanan bertahap (\textit{checkpointing}) dalam format JSONL.
+  Pada tahap keempat, ditetapkan konfigurasi pemuatan model \texttt{Qwen/\allowbreak Qwen3-\allowbreak 32B} beserta \textit{tokenizer} bawaannya pada memori GPU menggunakan kuantisasi 8-bit (\texttt{int8}) dan tipe data komputasi \textit{Float16} \cite{dettmersQLoRAEfficientFinetuning2023}. Pasangan \textit{system prompt} dan \textit{user prompt} pada setiap skenario kemudian disusun mengikuti format \textit{chat template} Qwen3 dalam mode \textit{non-thinking}. Kombinasi dari 519 sampel data pengujian, tiga variasi \textit{prompt} (P1, P2, dan P3), serta dua urutan posisi jawaban (A--B dan B--A) menghasilkan rancangan pengujian berjumlah $519 \times 3 \times 2 = 3.114$ skenario inferensi. Setiap skenario dijalankan menggunakan dekoding \textit{greedy} deterministik (\texttt{do\_sample=False}) dengan batas maksimum 10 token keluaran baru serta dilengkapi penyimpanan bertahap (\textit{checkpointing}) dalam format JSONL.
 
   \item \textbf{Ekstraksi Keputusan dan Evaluasi Metrik}
 
-  Tahap kelima mencakup proses ekstraksi keputusan dari teks keluaran mentah pada setiap skenario inferensi menggunakan ekspresi reguler berbasis batas kata (\textit{word-boundary regex}) untuk mengambil karakter tunggal \texttt{A} atau \texttt{B}. Apabila keluaran model tidak memuat salah satu karakter tersebut secara jelas, skenario ditandai sebagai \textit{invalid}, dihitung proporsinya ke dalam \textit{invalid rate}, dan dipisahkan tanpa dimasukkan ke salah satu kelas kandidat \cite{raoAgreementMetricsLLMasJudge2026}. Keputusan biner yang valid selanjutnya dipetakan kembali ke identitas kandidat asli sesuai Tabel~\ref{tab:skema_pertukaran_posisi} untuk menghitung metrik kesepakatan terhadap preferensi manusia (\textit{accuracy} dan Cohen's $\kappa$), konsistensi serta arah bias posisi (\textit{position consistency}, \textit{preference flip rate}, dan \textit{first-position preference rate}), serta konsistensi lintas formulasi \textit{prompt} (\textit{prompt consistency} dan \textit{prompt flip rate}).
+  Tahap kelima mencakup proses ekstraksi keputusan dari teks keluaran mentah pada setiap skenario inferensi menggunakan pola \textit{regular expression} (\textit{word-boundary regex}) untuk mengekstrak jawaban satu huruf (\texttt{A} atau \texttt{B}). Apabila keluaran model tidak memuat salah satu huruf tersebut secara jelas, skenario ditandai sebagai \textit{invalid}, dihitung proporsinya ke dalam \textit{invalid rate}, dan dipisahkan tanpa dimasukkan ke salah satu pilihan jawaban \cite{raoAgreementMetricsLLMasJudge2026}. Keputusan biner yang valid selanjutnya dipetakan kembali ke identitas jawaban asli sesuai Tabel~\ref{tab:skema_pertukaran_posisi} untuk menghitung metrik kesepakatan terhadap preferensi manusia (\textit{accuracy} dan Cohen's $\kappa$), konsistensi serta arah bias posisi (\textit{position consistency}, \textit{preference flip rate}, dan \textit{first-position preference rate}), serta konsistensi lintas variasi \textit{prompt} (\textit{prompt consistency} dan \textit{prompt flip rate}).
 
   \item \textbf{Analisis Hasil dan Penarikan Kesimpulan}
 
-  Pada tahap akhir, dilakukan analisis terhadap nilai ketujuh metrik reliabilitas, rincian kesepakatan per domain topik, rentang kepercayaan 95\%, serta hasil uji McNemar pada Persamaan~(\ref{eq:mcnemar_cc}). Pengujian Hipotesis~1 dilakukan dengan membandingkan konsistensi dan kesepakatan keputusan antara urutan posisi A--B dan B--A, sedangkan pengujian Hipotesis~2 dilakukan dengan membandingkan perubahan keputusan serta kesepakatan lintas formulasi \textit{prompt} P1, P2, dan P3. Seluruh temuan tersebut kemudian dirangkum menjadi kesimpulan untuk menjawab ketiga rumusan masalah penelitian.
+  Pada tahap akhir, dilakukan analisis terhadap nilai ketujuh metrik reliabilitas, rincian kesepakatan per domain topik, rentang kepercayaan 95\%, serta hasil uji McNemar pada Persamaan~(\ref{eq:mcnemar_cc}). Pengujian Hipotesis~1 dilakukan dengan membandingkan konsistensi dan kesepakatan keputusan antara posisi jawaban A--B dan B--A, sedangkan pengujian Hipotesis~2 dilakukan dengan membandingkan perubahan keputusan serta kesepakatan lintas variasi \textit{prompt} P1, P2, dan P3. Seluruh temuan tersebut kemudian dirangkum menjadi kesimpulan untuk menjawab ketiga rumusan masalah penelitian.
   \end{enumerate}
 \newpage
