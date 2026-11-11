@@ -60,7 +60,7 @@ Alat penelitian mencakup perangkat keras komputasi untuk menjalankan inferensi m
     \hline
     Pustaka Inferensi dan Kuantisasi & PyTorch, Transformers, BitsAndBytes, Accelerate & Pemuatan model \texttt{Qwen/\allowbreak Qwen3-\allowbreak 32B} dan \textit{tokenizer}, konfigurasi kuantisasi 8-bit (\texttt{int8}), serta eksekusi inferensi model pada GPU. \\
     \hline
-    Pustaka Pengolahan Data & Datasets, Pandas, NumPy, PyArrow & Pengambilan dataset sekunder, pemeriksaan kelengkapan atribut data, dan pengolahan tabel hasil pengujian. \\
+    Pustaka Pengolahan Data & Datasets, Pandas, NumPy, PyArrow & Pengunduhan dataset sekunder, pemeriksaan kelengkapan atribut data, dan pengolahan tabel hasil pengujian. \\
     \hline
     Pustaka Evaluasi dan Visualisasi & Scikit-learn, Statsmodels, Matplotlib, Seaborn & Perhitungan koefisien kesepakatan, pengujian signifikansi statistik berpasangan, serta pembuatan grafik visualisasi evaluasi. \\
     \hline
@@ -122,7 +122,7 @@ Untuk menguji signifikansi ketidakseimbangan arah perubahan keputusan antara uru
 \end{equation}
 dengan $b$ menyatakan jumlah pasangan berbeda (\textit{discordant pairs}) yang memilih jawaban pertama pada urutan A--B namun berbalik memilih jawaban kedua pada urutan B--A, dan $c$ menyatakan jumlah pasangan berbeda yang memilih jawaban kedua pada urutan A--B namun berbalik memilih jawaban pertama pada urutan B--A.
 
-Persamaan~(\ref{eq:mcnemar_cc}) menguji hipotesis nol bahwa perubahan keputusan akibat pertukaran urutan terjadi secara seimbang ke kedua arah ($H_0\!: p_b = p_c$) berdasarkan distribusi chi-kuadrat ($\chi^2$) dengan derajat kebebasan $\text{df} = 1$ dan taraf signifikansi $\alpha = 0{,}05$. Nilai $b$ menunjukkan jumlah sampel tidak konsisten yang memilih jawaban pada posisi pertama di kedua urutan (\textit{primacy bias}), sedangkan nilai $c$ menunjukkan jumlah sampel tidak konsisten yang memilih jawaban pada posisi kedua di kedua urutan (\textit{recency bias}). Berdasarkan kriteria uji tersebut, $H_0$ ditolak apabila nilai $p < 0{,}05$ (atau $\chi^2 \ge 3{,}841$), yang menandakan adanya kecenderungan arah posisi yang signifikan secara statistik antara urutan A--B dan B--A.
+Persamaan~(\ref{eq:mcnemar_cc}) menguji apakah perubahan keputusan akibat pertukaran urutan terjadi secara seimbang ke kedua arah ($p_b = p_c$) berdasarkan distribusi chi-kuadrat ($\chi^2$) dengan derajat kebebasan $\text{df} = 1$ dan taraf signifikansi $\alpha = 0{,}05$. Nilai $b$ menunjukkan jumlah sampel tidak konsisten yang memilih jawaban pada posisi pertama di kedua urutan (\textit{primacy bias}), sedangkan nilai $c$ menunjukkan jumlah sampel tidak konsisten yang memilih jawaban pada posisi kedua di kedua urutan (\textit{recency bias}). Apabila nilai $p < 0{,}05$ (atau $\chi^2 \ge 3{,}841$), kondisi perubahan yang seimbang ($p_b = p_c$) tidak terpenuhi, yang menandakan adanya kecenderungan arah posisi yang signifikan secara statistik antara urutan A--B dan B--A.
 
 \subsection{Bahan Penelitian}
 
@@ -298,7 +298,7 @@ Gambar~\ref{fig:diagram_alir_penelitian} memuat enam tahapan pelaksanaan penelit
 
   \item \textbf{Penyiapan Data Pengujian IndoPref}
 
-  Pada tahap kedua, disusun prosedur prapemrosesan terhadap dataset sekunder IndoPref sebelum digunakan dalam eksperimen. Prosedur ini meliputi pengambilan data dari repositori sumber, pemeriksaan kelengkapan nilai pada keenam atribut (\texttt{original\_id}, \texttt{domain}, \texttt{input}, \texttt{response\_1}, \texttt{response\_2}, dan \texttt{actual\_score}) untuk memastikan tidak terdapat nilai kosong (\textit{null}) atau string kosong, serta penyaringan duplikasi dengan mengambil baris pertama pada setiap kode instruksi asal (\texttt{original\_id}). Pada setiap sampel unik, teks \texttt{response\_1} ditetapkan sebagai Jawaban Pertama dan \texttt{response\_2} sebagai Jawaban Kedua, sedangkan nilai \texttt{'Assistant A'} pada atribut \texttt{actual\_score} dipetakan menjadi label acuan \texttt{A} (Jawaban Pertama) dan nilai \texttt{'Assistant B'} dipetakan menjadi label acuan \texttt{B} (Jawaban Kedua).
+  Pada tahap kedua, disusun prosedur prapemrosesan terhadap dataset sekunder IndoPref sebelum digunakan dalam eksperimen. Prosedur ini meliputi pengunduhan data dari repositori sumber, pemeriksaan kelengkapan nilai pada keenam atribut (\texttt{original\_id}, \texttt{domain}, \texttt{input}, \texttt{response\_1}, \texttt{response\_2}, dan \texttt{actual\_score}) untuk memastikan tidak terdapat nilai kosong (\textit{null}) atau string kosong, serta penyaringan data duplikat dengan mengambil baris pertama pada setiap kode instruksi asal (\texttt{original\_id}). Pada setiap sampel unik, teks \texttt{response\_1} ditetapkan sebagai Jawaban Pertama dan \texttt{response\_2} sebagai Jawaban Kedua, sedangkan nilai \texttt{'Assistant A'} pada atribut \texttt{actual\_score} dipetakan menjadi label acuan \texttt{A} (Jawaban Pertama) dan nilai \texttt{'Assistant B'} dipetakan menjadi label acuan \texttt{B} (Jawaban Kedua).
 
   \item \textbf{Perancangan Variasi \textit{Prompt} dan Posisi Jawaban}
 
@@ -397,7 +397,7 @@ Gambar~\ref{fig:diagram_alir_penelitian} memuat enam tahapan pelaksanaan penelit
   \end{minipage}
 \end{table}
 
-  Tabel~\ref{tab:skema_pertukaran_posisi} membedakan antara label posisi yang dipilih model di dalam \textit{prompt} (\texttt{A} untuk posisi pertama atau \texttt{B} untuk posisi kedua) dan identitas jawaban asli yang dipilih. Pada urutan B--A, pilihan \texttt{A} mengacu pada teks di posisi pertama yang berisi Jawaban Kedua, sehingga keputusan tersebut dipetakan kembali menjadi Jawaban Kedua. Dengan pemetaan ini, konsistensi keputusan antara urutan A--B dan B--A diukur berdasarkan kesamaan jawaban asli yang dipilih, sedangkan kecenderungan model terhadap urutan penyajian diukur dari proporsi pemilihan posisi pertama (\texttt{A}) pada kedua urutan (\textit{first-position preference rate}).
+  Tabel~\ref{tab:skema_pertukaran_posisi} membedakan antara label posisi yang dipilih model di dalam \textit{prompt} (\texttt{A} untuk posisi pertama atau \texttt{B} untuk posisi kedua) dan jawaban asli yang dipilih. Pada urutan B--A, pilihan \texttt{A} mengacu pada teks di posisi pertama yang berisi Jawaban Kedua, sehingga keputusan tersebut dipetakan kembali menjadi Jawaban Kedua. Dengan pemetaan ini, konsistensi keputusan antara urutan A--B dan B--A diukur berdasarkan kesamaan jawaban asli yang dipilih, sedangkan kecenderungan model terhadap urutan posisi diukur dari proporsi pemilihan posisi pertama (\texttt{A}) pada kedua urutan (\textit{first-position preference rate}).
 
   \item \textbf{Konfigurasi Model dan Eksperimen Inferensi}
 
@@ -405,7 +405,7 @@ Gambar~\ref{fig:diagram_alir_penelitian} memuat enam tahapan pelaksanaan penelit
 
   \item \textbf{Ekstraksi Keputusan dan Evaluasi Metrik}
 
-  Tahap kelima mencakup proses ekstraksi keputusan dari teks keluaran mentah pada setiap skenario inferensi menggunakan pola \textit{regular expression} (\textit{word-boundary regex}) untuk mengekstrak jawaban satu huruf (\texttt{A} atau \texttt{B}). Apabila keluaran model tidak memuat salah satu huruf tersebut secara jelas, skenario ditandai sebagai \textit{invalid}, dihitung proporsinya ke dalam \textit{invalid rate}, dan dipisahkan tanpa dimasukkan ke salah satu pilihan jawaban \cite{raoAgreementMetricsLLMasJudge2026}. Keputusan biner yang valid selanjutnya dipetakan kembali ke identitas jawaban asli sesuai Tabel~\ref{tab:skema_pertukaran_posisi} untuk menghitung metrik kesepakatan terhadap preferensi manusia (\textit{accuracy} dan Cohen's $\kappa$), konsistensi serta arah bias posisi (\textit{position consistency}, \textit{preference flip rate}, dan \textit{first-position preference rate}), serta konsistensi lintas variasi \textit{prompt} (\textit{prompt consistency} dan \textit{prompt flip rate}).
+  Tahap kelima mencakup proses ekstraksi keputusan dari teks keluaran mentah pada setiap skenario inferensi menggunakan pola \textit{regular expression} (\textit{word-boundary regex}) untuk mengekstrak jawaban satu huruf (\texttt{A} atau \texttt{B}). Apabila keluaran model tidak memuat salah satu huruf tersebut secara jelas, skenario ditandai sebagai \textit{invalid}, dihitung proporsinya ke dalam \textit{invalid rate}, dan dipisahkan tanpa dimasukkan ke salah satu pilihan jawaban \cite{raoAgreementMetricsLLMasJudge2026}. Keputusan biner yang valid selanjutnya dipetakan kembali ke jawaban aslinya sesuai Tabel~\ref{tab:skema_pertukaran_posisi} untuk menghitung metrik kesepakatan terhadap preferensi manusia (\textit{accuracy} dan Cohen's $\kappa$), konsistensi serta arah bias posisi (\textit{position consistency}, \textit{preference flip rate}, dan \textit{first-position preference rate}), serta konsistensi lintas variasi \textit{prompt} (\textit{prompt consistency} dan \textit{prompt flip rate}).
 
   \item \textbf{Analisis Hasil dan Penarikan Kesimpulan}
 
