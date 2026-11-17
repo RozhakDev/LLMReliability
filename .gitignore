@@ -88,10 +88,8 @@ _minted*/
 .knowledge-base/
 
 # Obsolete & Deprecated Experiments
-AI/*
+Notebooks/*
 ML/*
-!AI/00_Workspace_Synchronizer.ipynb
-!AI/07_Streamlit_Demo.ipynb
-!AI/08_End_to_End_Evaluation_Pipeline.ipynb
+!Notebooks/08_End_to_End_Evaluation_Pipeline.ipynb
 !ML/08_*.ipynb
 !*/AGENTS.md

@@ -37,7 +37,7 @@ Validasi keandalan dilakukan melalui analisis perbandingan antar kondisi modifik
 
 ## Status
 
-**Active Development** — Fokus saat ini pada penyiapan *environment*, penyusunan *notebook boilerplate* (`ML/`), dan validasi sampel dataset awal.
+**Active Development** — Fokus saat ini pada penyiapan *environment*, penyusunan *notebook boilerplate* (`Notebooks/`), dan validasi sampel dataset awal.
 
 ## Lisensi
 
