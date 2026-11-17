@@ -31,7 +31,7 @@ Alat penelitian mencakup perangkat keras komputasi untuk menjalankan inferensi m
   \let\normalsize\footnotesize
   \setlength{\abovecaptionskip}{0pt}
   \setlength{\belowcaptionskip}{\baselineskip}
-  \caption{Spesifikasi perangkat keras dan perangkat lunak penelitian.}
+  \caption{Spesifikasi perangkat keras dan perangkat lunak penelitian}
   \label{tab:alat_penelitian}
   }
   {\small
@@ -78,7 +78,7 @@ Selain perangkat komputasi, alat penelitian mencakup penetapan variabel bebas, v
   \let\normalsize\footnotesize
   \setlength{\abovecaptionskip}{0pt}
   \setlength{\belowcaptionskip}{\baselineskip}
-  \caption{Variabel bebas, variabel terikat, dan variabel kontrol penelitian.}
+  \caption{Variabel bebas, variabel terikat, dan variabel kontrol penelitian}
   \label{tab:variabel_penelitian}
   }
   {\small
@@ -111,9 +111,9 @@ Selain perangkat komputasi, alat penelitian mencakup penetapan variabel bebas, v
   }
 \end{table}
 
-Tabel~\ref{tab:variabel_penelitian} menunjukkan bahwa pengujian disusun dengan prinsip pengubahan satu faktor dalam satu waktu (\textit{one factor at a time}). Penggunaan model \texttt{Qwen/\allowbreak Qwen3-\allowbreak 32B} (\texttt{torch.bfloat16}), struktur \textit{chat template}, dan 519 sampel uji yang sama di seluruh skenario menjaga agar kondisi pengujian tetap seragam, sedangkan dekoding \textit{greedy} deterministik tanpa \textit{sampling} acak (\texttt{do\_sample=False}) digunakan untuk menghilangkan variasi keluaran antar-inferensi (\textit{decoding noise}) \cite{shiJudgingJudgesSystematic}\cite{normanReliabilityValiditySystematic2026}. Dengan pengaturan variabel kontrol tersebut, perbandingan antara urutan A--B dan B--A pada \textit{prompt} yang sama digunakan untuk menguji pengaruh posisi jawaban secara terpisah, sedangkan perbandingan antara variasi P1, P2, dan P3 pada posisi jawaban yang sama (urutan standar A--B) digunakan untuk menguji pengaruh variasi \textit{prompt}.
+Tabel~\ref{tab:variabel_penelitian} menunjukkan bahwa meskipun pengujian dijalankan pada enam kombinasi kondisi ($3 \text{ variasi \textit{prompt}} \times 2 \text{ urutan posisi}$), analisis terhadap setiap variabel bebas dilakukan secara terpisah dengan prinsip pengubahan satu faktor dalam satu waktu (\textit{one factor at a time}). Penggunaan model \texttt{Qwen/\allowbreak Qwen3-\allowbreak 32B} (\texttt{torch.bfloat16}), struktur \textit{chat template}, dan 519 sampel uji yang sama di seluruh skenario menjaga agar kondisi pengujian tetap seragam, sedangkan dekoding \textit{greedy} deterministik tanpa \textit{sampling} acak (\texttt{do\_sample=False}) digunakan untuk menghilangkan variasi keluaran antar-inferensi (\textit{decoding noise}) \cite{shiJudgingJudgesSystematic}\cite{normanReliabilityValiditySystematic2026}. Dengan pengaturan variabel kontrol tersebut, perbandingan antara urutan A--B dan B--A pada \textit{prompt} yang sama digunakan untuk menguji pengaruh posisi jawaban secara terpisah, sedangkan perbandingan antara variasi P1, P2, dan P3 pada posisi jawaban yang sama (urutan standar A--B) digunakan untuk menguji pengaruh variasi \textit{prompt}.
 
-Perhitungan ketujuh metrik pada variabel terikat mengacu pada Persamaan~(\ref{eq:accuracy}) sampai dengan Persamaan~(\ref{eq:prompt_flip_rate}) pada Subbab~2.2. Seluruh persamaan tersebut diterapkan pada keputusan biner yang valid (\texttt{A} atau \texttt{B}), sedangkan keluaran yang tidak memuat pilihan valid dipisahkan dan dicatat proporsinya melalui \textit{invalid rate} \cite{raoAgreementMetricsLLMasJudge2026}. Metrik \textit{accuracy} dan Cohen's $\kappa$ dihitung baik pada kondisi acuan satu urutan (P1 urutan A--B) maupun pada gabungan dua urutan (A--B dan B--A) untuk setiap variasi \textit{prompt} serta dirinci per domain topik. Selain nilai utama metrik, perhitungan Cohen's $\kappa$ dilengkapi rentang kepercayaan (\textit{confidence interval}) 95\% menggunakan metode \textit{non-parametric percentile bootstrap} sebanyak 500 iterasi pengambilan sampel ulang dengan pengembalian (\textit{resampling with replacement}, persentil ke-2,5 dan ke-97,5) \cite{chandrahasEvalciPythonLibrary2026}, sedangkan nilai \textit{accuracy} dilengkapi rentang kepercayaan normal (\textit{Wald} 95\% CI) sebesar $\hat{p} \pm 1{,}96\sqrt{\hat{p}(1-\hat{p})/n}$.
+Perhitungan ketujuh metrik pada variabel terikat mengacu pada Persamaan~(\ref{eq:accuracy}) sampai dengan Persamaan~(\ref{eq:prompt_flip_rate}) pada Subbab~2.2. Seluruh persamaan tersebut diterapkan pada keputusan biner yang valid (\texttt{A} atau \texttt{B}), sedangkan keluaran yang tidak memuat pilihan valid dipisahkan dan dicatat proporsinya melalui \textit{invalid rate} \cite{raoAgreementMetricsLLMasJudge2026}. Metrik \textit{accuracy} dan Cohen's $\kappa$ dihitung baik pada kondisi acuan satu urutan (P1 urutan A--B) maupun pada gabungan dua urutan (A--B dan B--A) untuk setiap variasi \textit{prompt}, serta tingkat \textit{accuracy} dirinci lebih lanjut pada sepuluh domain topik. Selain nilai utama metrik, perhitungan Cohen's $\kappa$ pada tiap variasi \textit{prompt} dilengkapi rentang kepercayaan (\textit{confidence interval}) 95\% menggunakan metode \textit{non-parametric percentile bootstrap} sebanyak 500 iterasi pengambilan sampel ulang dengan pengembalian (\textit{resampling with replacement}, persentil ke-2,5 dan ke-97,5) \cite{chandrahasEvalciPythonLibrary2026}, sedangkan pada grafik perbandingan \textit{accuracy} ditampilkan rentang kepercayaan 95\% sebesar $\pm 1{,}96\sqrt{\hat{p}(1-\hat{p})/n}$.
 
 Untuk menguji signifikansi ketidakseimbangan arah perubahan keputusan antara urutan A--B dan B--A, digunakan uji berpasangan McNemar dengan koreksi kontinuitas \cite{chandrahasEvalciPythonLibrary2026} sebagaimana dituliskan pada Persamaan~(\ref{eq:mcnemar_cc}):
 \begin{equation}
@@ -136,7 +136,7 @@ Struktur data IndoPref yang digunakan sebagai bahan penelitian mencakup enam atr
   \let\normalsize\footnotesize
   \setlength{\abovecaptionskip}{0pt}
   \setlength{\belowcaptionskip}{\baselineskip}
-  \caption{Distribusi bahan data pengujian IndoPref pada sepuluh domain topik.}
+  \caption{Distribusi bahan data pengujian IndoPref pada sepuluh domain topik}
   \label{tab:distribusi_domain_indopref}
   }
   {\small
@@ -284,7 +284,7 @@ Tahapan penelitian dirancang secara sistematis mulai dari identifikasi masalah d
   \let\normalsize\footnotesize
   \setlength{\abovecaptionskip}{6pt}
   \setlength{\belowcaptionskip}{0pt}
-  \caption{Diagram alir penelitian.}
+  \caption{Diagram alir penelitian}
   \label{fig:diagram_alir_penelitian}
   }
 \end{figure}
@@ -312,7 +312,7 @@ Gambar~\ref{fig:diagram_alir_penelitian} memuat enam tahapan pelaksanaan penelit
   \let\normalsize\footnotesize
   \setlength{\abovecaptionskip}{0pt}
   \setlength{\belowcaptionskip}{\baselineskip}
-  \caption{Rancangan \textit{system prompt} dan variasi \textit{user prompt} evaluasi.}
+  \caption{Rancangan \textit{system prompt} dan variasi \textit{user prompt} evaluasi}
   \label{tab:formulasi_prompt}
   \renewcommand{\arraystretch}{1.14}
   \setlength{\tabcolsep}{5pt}
@@ -376,7 +376,7 @@ Gambar~\ref{fig:diagram_alir_penelitian} memuat enam tahapan pelaksanaan penelit
   \let\normalsize\footnotesize
   \setlength{\abovecaptionskip}{0pt}
   \setlength{\belowcaptionskip}{\baselineskip}
-  \caption{Skema penempatan posisi jawaban pada urutan A--B dan B--A.}
+  \caption{Skema penempatan posisi jawaban pada urutan A--B dan B--A}
   \label{tab:skema_pertukaran_posisi}
   \renewcommand{\arraystretch}{1.16}
   \setlength{\tabcolsep}{4pt}
