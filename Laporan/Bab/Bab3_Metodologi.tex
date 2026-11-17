@@ -113,22 +113,50 @@ Selain perangkat komputasi, alat penelitian mencakup penetapan variabel bebas, v
 
 Tabel~\ref{tab:variabel_penelitian} menunjukkan bahwa meskipun pengujian dijalankan pada enam kombinasi kondisi ($3 \text{ variasi \textit{prompt}} \times 2 \text{ urutan posisi}$), analisis terhadap setiap variabel bebas dilakukan secara terpisah dengan prinsip pengubahan satu faktor dalam satu waktu (\textit{one factor at a time}). Penggunaan model \texttt{Qwen/\allowbreak Qwen3-\allowbreak 32B} (\texttt{torch.bfloat16}), struktur \textit{chat template}, dan 519 sampel uji yang sama di seluruh skenario menjaga agar kondisi pengujian tetap seragam, sedangkan dekoding \textit{greedy} deterministik tanpa \textit{sampling} acak (\texttt{do\_sample=False}) digunakan untuk menghilangkan variasi keluaran antar-inferensi (\textit{decoding noise}) \cite{shiJudgingJudgesSystematic}\cite{normanReliabilityValiditySystematic2026}. Dengan pengaturan variabel kontrol tersebut, perbandingan antara urutan A--B dan B--A pada \textit{prompt} yang sama digunakan untuk menguji pengaruh posisi jawaban secara terpisah, sedangkan perbandingan antara variasi P1, P2, dan P3 pada posisi jawaban yang sama (urutan standar A--B) digunakan untuk menguji pengaruh variasi \textit{prompt}.
 
-Perhitungan ketujuh metrik pada variabel terikat mengacu pada Persamaan~(\ref{eq:accuracy}) sampai dengan Persamaan~(\ref{eq:prompt_flip_rate}) pada Subbab~2.2. Seluruh persamaan tersebut diterapkan pada keputusan biner yang valid (\texttt{A} atau \texttt{B}), sedangkan keluaran yang tidak memuat pilihan valid dipisahkan dan dicatat proporsinya melalui \textit{invalid rate} \cite{raoAgreementMetricsLLMasJudge2026}. Metrik \textit{accuracy} dan Cohen's $\kappa$ dihitung baik pada kondisi acuan satu urutan (P1 urutan A--B) maupun pada gabungan dua urutan (A--B dan B--A) untuk setiap variasi \textit{prompt}, serta tingkat \textit{accuracy} dirinci lebih lanjut pada sepuluh domain topik. Selain nilai utama metrik, perhitungan Cohen's $\kappa$ pada tiap variasi \textit{prompt} dilengkapi rentang kepercayaan (\textit{confidence interval}) 95\% menggunakan metode \textit{non-parametric percentile bootstrap} sebanyak 500 iterasi pengambilan sampel ulang dengan pengembalian (\textit{resampling with replacement}, persentil ke-2,5 dan ke-97,5) \cite{chandrahasEvalciPythonLibrary2026}, sedangkan pada grafik perbandingan \textit{accuracy} ditampilkan rentang kepercayaan 95\% sebesar $\pm 1{,}96\sqrt{\hat{p}(1-\hat{p})/n}$.
-
-Untuk menguji signifikansi ketidakseimbangan arah perubahan keputusan antara urutan A--B dan B--A, digunakan uji berpasangan McNemar dengan koreksi kontinuitas \cite{chandrahasEvalciPythonLibrary2026} sebagaimana dituliskan pada Persamaan~(\ref{eq:mcnemar_cc}):
-\begin{equation}
-  \chi^2 = \frac{\left(|b - c| - 1\right)^2}{b + c}
-  \label{eq:mcnemar_cc}
-\end{equation}
-dengan $b$ menyatakan jumlah pasangan berbeda (\textit{discordant pairs}) yang memilih jawaban pertama pada urutan A--B namun berbalik memilih jawaban kedua pada urutan B--A, dan $c$ menyatakan jumlah pasangan berbeda yang memilih jawaban kedua pada urutan A--B namun berbalik memilih jawaban pertama pada urutan B--A.
-
-Persamaan~(\ref{eq:mcnemar_cc}) menguji apakah perubahan keputusan akibat pertukaran urutan terjadi secara seimbang ke kedua arah ($p_b = p_c$) berdasarkan distribusi chi-kuadrat ($\chi^2$) dengan derajat kebebasan $\text{df} = 1$ dan taraf signifikansi $\alpha = 0{,}05$. Nilai $b$ menunjukkan jumlah sampel tidak konsisten yang memilih jawaban pada posisi pertama di kedua urutan (\textit{primacy bias}), sedangkan nilai $c$ menunjukkan jumlah sampel tidak konsisten yang memilih jawaban pada posisi kedua di kedua urutan (\textit{recency bias}). Apabila nilai $p < 0{,}05$ (atau $\chi^2 \ge 3{,}841$), kondisi perubahan yang seimbang ($p_b = p_c$) tidak terpenuhi, yang menandakan adanya kecenderungan arah posisi yang signifikan secara statistik antara urutan A--B dan B--A.
+Perhitungan ketujuh metrik pada variabel terikat serta uji McNemar untuk posisi jawaban mengacu pada Persamaan~(\ref{eq:accuracy}) sampai dengan Persamaan~(\ref{eq:prompt_flip_rate}) pada Subbab~2.2. Seluruh persamaan tersebut diterapkan pada keputusan biner yang valid (\texttt{A} atau \texttt{B}), sedangkan keluaran yang tidak memuat pilihan valid dipisahkan dan dicatat proporsinya melalui \textit{invalid rate} \cite{raoAgreementMetricsLLMasJudge2026}. Metrik \textit{accuracy} dan Cohen's $\kappa$ dihitung baik pada kondisi acuan satu urutan (P1 urutan A--B) maupun pada gabungan dua urutan (A--B dan B--A) untuk setiap variasi \textit{prompt}, serta tingkat \textit{accuracy} dirinci lebih lanjut pada sepuluh domain topik. Selain nilai utama metrik, perhitungan Cohen's $\kappa$ pada tiap variasi \textit{prompt} dilengkapi rentang kepercayaan (\textit{confidence interval}) 95\% menggunakan metode \textit{non-parametric percentile bootstrap} sebanyak 500 iterasi pengambilan sampel ulang dengan pengembalian (\textit{resampling with replacement}, persentil ke-2,5 dan ke-97,5) \cite{raoAgreementMetricsLLMasJudge2026}, sedangkan pada grafik perbandingan \textit{accuracy} ditampilkan rentang kepercayaan 95\% sebesar $\pm 1{,}96\sqrt{\hat{p}(1-\hat{p})/n}$ dengan $\hat{p}$ adalah nilai \textit{accuracy} dan $n = N_{\text{valid}}$. Pada uji McNemar di Persamaan~(\ref{eq:mcnemar_cc}), batas keputusan yang digunakan adalah $\alpha = 0{,}05$. Apabila nilai $p < 0{,}05$ (atau $\chi^2 \ge 3{,}841$), kondisi perubahan yang seimbang ($p_b = p_c$) tidak terpenuhi, yang menandakan adanya kecenderungan arah posisi antara urutan A--B dan B--A yang bukan terjadi secara kebetulan.
 
 \subsection{Bahan Penelitian}
 
 Bahan penelitian yang digunakan adalah data sekunder dari dataset terbuka IndoPref (\textit{A Multi-Domain Pairwise Preference Dataset for Indonesian}) yang dikembangkan oleh Wiyono dkk.\ \cite{wiyonoIndoPrefMultiDomainPairwise2025} di bawah lisensi CC~BY~4.0 pada repositori Hugging Face (\texttt{davidanugraha/IndoPref}). Dataset ini memuat 4.099 perbandingan preferensi berpasangan yang disusun dari 522 instruksi berbahasa Indonesia dan dinilai langsung oleh anotator berbahasa Indonesia lintas 10 domain topik atas respons lima model bahasa \textit{instruction-tuned}, dengan tingkat kesepakatan antar-anotator Krippendorff's $\alpha = 0{,}891$ \cite{wiyonoIndoPrefMultiDomainPairwise2025}. Sesuai batasan penelitian, label preferensi manusia pada IndoPref digunakan langsung sebagai \textit{reference human preference} tanpa proses anotasi baru.
 
-Struktur data IndoPref yang digunakan sebagai bahan penelitian mencakup enam atribut, yaitu kode pengenal instruksi asal (\texttt{original\_id}), kategori domain topik (\texttt{domain}), teks instruksi masukan berbahasa Indonesia (\texttt{input}), teks jawaban pertama (\texttt{response\_1}), teks jawaban kedua (\texttt{response\_2}), serta skor hasil penilaian manusia (\texttt{actual\_score}) yang menentukan jawaban yang lebih baik. Di dalam 4.099 baris perbandingan berpasangan pada dataset tersebut, terdapat 519 kode instruksi unik (\texttt{original\_id}) lintas 10 domain topik karena satu instruksi yang sama dipasangkan berulang kali untuk berbagai kombinasi model penjawab. Penelitian ini menggunakan satu pasangan respons untuk setiap kode instruksi asal sehingga bahan data pengujian berjumlah 519 sampel unik dengan sebaran per domain topik sebagaimana disajikan pada Tabel~\ref{tab:distribusi_domain_indopref}.
+Setiap sampel data pada dataset IndoPref yang digunakan sebagai bahan penelitian mencakup enam atribut utama sebagaimana dicontohkan pada Tabel~\ref{tab:contoh_sampel_indopref}.
+
+\begin{table}[H]
+  \centering
+  {\footnotesize\linespread{1.0}\selectfont
+  \let\normalsize\footnotesize
+  \setlength{\abovecaptionskip}{0pt}
+  \setlength{\belowcaptionskip}{\baselineskip}
+  \caption{Struktur atribut dan contoh sampel data pengujian IndoPref}
+  \label{tab:contoh_sampel_indopref}
+  }
+  {\footnotesize
+  \linespread{1.02}\selectfont
+  \renewcommand{\arraystretch}{1.14}
+  \setlength{\tabcolsep}{5pt}
+  \begin{tabular}{|>{\raggedright\arraybackslash}p{2.25cm}|>{\raggedright\arraybackslash}p{3.35cm}|>{\raggedright\arraybackslash}p{7.05cm}|}
+    \hline
+    \multicolumn{1}{|>{\centering\arraybackslash}p{2.25cm}|}{\textbf{Atribut}} &
+    \multicolumn{1}{>{\centering\arraybackslash}p{3.35cm}|}{\textbf{Deskripsi}} &
+    \multicolumn{1}{>{\centering\arraybackslash}p{7.05cm}|}{\textbf{Contoh Isi Sampel Data}} \\
+    \hline
+    \texttt{original\_id} & Kode pengenal instruksi asal & \texttt{147} \\
+    \hline
+    \texttt{domain} & Kategori domain topik & \texttt{logic} \\
+    \hline
+    \texttt{input} & Teks instruksi masukan berbahasa Indonesia & \texttt{Jam: Waktu = Termometer: \_\_\_\_} \\
+    \hline
+    \texttt{response\_1} & Teks jawaban pertama & \texttt{Jam: Waktu = Termometer: Suhu} \\
+    \hline
+    \texttt{response\_2} & Teks jawaban kedua & Jam: Waktu = Termometer: Suhu\newline\newline Penjelasan: Jam digunakan untuk mengukur waktu, sedangkan termometer digunakan untuk mengukur suhu. \\
+    \hline
+    \texttt{actual\_score} & Label jawaban pilihan manusia & \texttt{Assistant B} \\
+    \hline
+  \end{tabular}
+  }
+\end{table}
+
+Pada contoh sampel \texttt{original\_id} \texttt{147} di Tabel~\ref{tab:contoh_sampel_indopref}, nilai \texttt{Assistant B} pada atribut \texttt{actual\_score} menunjukkan bahwa anotator manusia memilih \texttt{response\_2} sebagai jawaban yang lebih baik dibandingkan \texttt{response\_1} (sebaliknya, nilai \texttt{Assistant A} menunjukkan \texttt{response\_1} lebih baik). Di dalam 4.099 baris perbandingan berpasangan pada dataset tersebut, terdapat 519 kode instruksi unik (\texttt{original\_id}) lintas 10 domain topik karena satu instruksi yang sama dipasangkan berulang kali untuk berbagai kombinasi model penjawab. Penelitian ini menggunakan satu pasangan respons untuk setiap kode instruksi asal sehingga bahan data pengujian berjumlah 519 sampel unik dengan sebaran per domain topik sebagaimana disajikan pada Tabel~\ref{tab:distribusi_domain_indopref}.
 
 \begin{table}[H]
   \centering
@@ -209,31 +237,15 @@ Tahapan penelitian dirancang secara sistematis mulai dari identifikasi masalah d
       fill=white,
       inner sep=5pt
     },
-    io/.style={
-      trapezium,
-      trapezium left angle=75,
-      trapezium right angle=105,
-      text width=6.0cm,
-      minimum height=0.95cm,
-      align=center,
-      draw=black,
-      line width=0.75pt,
-      fill=white,
-      inner xsep=5pt,
-      inner ysep=5pt
-    },
-    prepbranch/.style={
-      signal,
-      signal to=east and west,
-      signal pointer angle=115,
+    procb/.style={
+      rectangle,
       text width=4.6cm,
       minimum height=1.15cm,
       align=center,
       draw=black,
       line width=0.75pt,
       fill=white,
-      inner xsep=4pt,
-      inner ysep=5pt
+      inner sep=5pt
     },
     line/.style={
       draw=black,
@@ -249,13 +261,13 @@ Tahapan penelitian dirancang secara sistematis mulai dari identifikasi masalah d
 
     \node[proc, below=0.65cm of start] (t1) {Identifikasi Masalah dan Studi Literatur};
 
-    \node[io, below=0.65cm of t1] (t2) {Penyiapan Data Pengujian IndoPref};
+    \node[proc, below=0.65cm of t1] (t2) {Penyiapan Data Pengujian IndoPref};
 
     \coordinate[below=0.45cm of t2.south] (split);
 
-    \node[prepbranch, below left=0.50cm and 0.45cm of split] (t3a) {Perancangan Variasi \textit{Prompt}\\(P1, P2, dan P3)};
+    \node[procb, below left=0.50cm and 0.45cm of split] (t3a) {Perancangan Variasi \textit{Prompt}\\(P1, P2, dan P3)};
 
-    \node[prepbranch, below right=0.50cm and 0.45cm of split] (t3b) {Perancangan Posisi Jawaban\\(Urutan A--B dan B--A)};
+    \node[procb, below right=0.50cm and 0.45cm of split] (t3b) {Perancangan Posisi Jawaban\\(Urutan A--B dan B--A)};
 
     \path (t3a.south) -- (t3b.south) coordinate[midway, yshift=-0.45cm] (merge);
 
@@ -263,7 +275,7 @@ Tahapan penelitian dirancang secara sistematis mulai dari identifikasi masalah d
 
     \node[proc, below=0.65cm of t4] (t5) {Ekstraksi Keputusan dan Evaluasi Metrik};
 
-    \node[io, below=0.65cm of t5] (t6) {Analisis Hasil dan Penarikan Kesimpulan};
+    \node[proc, below=0.65cm of t5] (t6) {Analisis Hasil dan Penarikan Kesimpulan};
 
     \node[term, below=0.65cm of t6] (stop) {Selesai};
 
