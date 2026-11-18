@@ -37,7 +37,19 @@
 % Sitasi dan Referensi
 % ------------------------------------------------------------------------------
 \usepackage{etoolbox}
-\usepackage[numbers]{natbib}
+\usepackage{csquotes}
+\DeclareQuoteAlias{english}{bahasa}
+\usepackage[
+  backend=biber,
+  style=ieee,
+  language=english,
+  url=false,
+  eprint=false,
+]{biblatex}
+\DeclareLanguageMapping{bahasa}{english}
+\DeclareFieldFormat{sentencecase}{#1}
+\appto{\bibsetup}{\interlinepenalty=10000\relax}
+\addbibresource{DaftarPustaka/Referensi.bib}
 \usepackage[bookmarks,hypertexnames=false,debug]{hyperref}
 \usepackage{bookmark}
 
