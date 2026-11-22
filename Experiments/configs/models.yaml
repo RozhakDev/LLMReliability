@@ -1,0 +1,60 @@
+models:
+  - key: "qwen3_32b"
+    display_name: "Qwen3 32B"
+    hf_id: "Qwen/Qwen3-32B"
+    loader_type: "causal_lm"
+    estimated_vram_gb: 61.0
+    is_primary: true
+    is_multimodal_processor: false
+    use_enable_thinking_flag: true
+    trust_remote_code: false
+    requires_gated_access: false
+    primary_strength: "Main Baseline Model (32B)"
+
+  - key: "gemma3_27b_goto"
+    display_name: "GoTo-AI Gemma 3 27B"
+    hf_id: "GoToCompany/gemma3-27b-cpt-gotoai-v3-instruct"
+    loader_type: "gemma3"
+    estimated_vram_gb: 50.3
+    is_primary: false
+    is_multimodal_processor: true
+    use_enable_thinking_flag: false
+    trust_remote_code: false
+    requires_gated_access: false
+    primary_strength: "Indonesian Language Specialization (27B)"
+
+  - key: "aya_expanse_32b"
+    display_name: "Aya Expanse 32B"
+    hf_id: "CohereForAI/aya-expanse-32b"
+    loader_type: "causal_lm"
+    estimated_vram_gb: 60.1
+    is_primary: false
+    is_multimodal_processor: false
+    use_enable_thinking_flag: false
+    trust_remote_code: false
+    requires_gated_access: true
+    primary_strength: "Multilingual Alignment (32B)"
+
+  - key: "mistral_small_3_1_24b"
+    display_name: "Mistral Small 3.1 24B"
+    hf_id: "mistralai/Mistral-Small-3.1-24B-Instruct-2503"
+    loader_type: "mistral3"
+    estimated_vram_gb: 44.7
+    is_primary: false
+    is_multimodal_processor: true
+    use_enable_thinking_flag: false
+    trust_remote_code: false
+    requires_gated_access: false
+    primary_strength: "Instruction Following (24B)"
+
+  - key: "glm_4_32b"
+    display_name: "GLM-4 32B 0414"
+    hf_id: "THUDM/GLM-4-32B-0414"
+    loader_type: "causal_lm"
+    estimated_vram_gb: 60.0
+    is_primary: false
+    is_multimodal_processor: false
+    use_enable_thinking_flag: false
+    trust_remote_code: true
+    requires_gated_access: false
+    primary_strength: "Comparable 32B Reasoning Family (BF16 Parity)"

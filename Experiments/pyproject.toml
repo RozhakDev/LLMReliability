@@ -1,0 +1,10 @@
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+markers = [
+    "unit: fast CPU-only unit tests with no heavy model or statistical runtime dependencies",
+    "integration: end-to-end multi-component tests",
+    "transformers: tests requiring Hugging Face transformers runtime",
+    "statsmodels: tests requiring statsmodels runtime",
+]

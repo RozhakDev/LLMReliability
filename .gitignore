@@ -38,16 +38,18 @@ dist/
 *.h5
 *.hdf5
 data/
+!Experiments/src/llm_exp/data/
 datasets/
 
 # Model Checkpoints, Weights, & Logs
+*.safetensors
 *.pt
 *.pth
 *.ckpt
-*.safetensors
 *.bin
 *.onnx
 models/
+!Experiments/src/llm_exp/models/
 checkpoints/
 runs/
 wandb/
