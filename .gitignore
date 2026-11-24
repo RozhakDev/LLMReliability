@@ -39,6 +39,7 @@ dist/
 *.hdf5
 data/
 !Experiments/src/llm_exp/data/
+!Qwen3/src/qwen3_eval/data/
 datasets/
 
 # Model Checkpoints, Weights, & Logs
@@ -50,6 +51,7 @@ datasets/
 *.onnx
 models/
 !Experiments/src/llm_exp/models/
+!Qwen3/src/qwen3_eval/models/
 checkpoints/
 runs/
 wandb/

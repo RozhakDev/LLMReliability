@@ -1,0 +1,54 @@
+system_prompt: >-
+  Anda adalah evaluator AI yang objektif. Anda tidak memiliki bias posisi.
+  Jawab HANYA dengan pilihan kandidat (A atau B).
+
+templates:
+  P1: |-
+    ### TUGAS
+    Bandingkan dua respons AI di bawah ini untuk instruksi yang sama. Pilih mana yang secara keseluruhan lebih baik.
+
+    ### INSTRUKSI
+    {input_text}
+
+    ### RESPONS A
+    {resp_a}
+
+    ### RESPONS B
+    {resp_b}
+
+    ### FORMAT JAWABAN
+    Keluarkan HANYA satu huruf: A atau B. Dilarang menulis alasan atau teks lain.
+
+  P2: |-
+    ### TUGAS
+    Nilai dua respons AI berikut berdasarkan: Akurasi (kebenaran), Relevansi (menjawab instruksi), dan Kejelasan (tidak bertele-tele).
+
+    ### INSTRUKSI
+    {input_text}
+
+    ### RESPONS A
+    {resp_a}
+
+    ### RESPONS B
+    {resp_b}
+
+    ### FORMAT JAWABAN
+    Berdasarkan kriteria di atas, keluarkan HANYA satu huruf: A atau B. Dilarang memberikan penjelasan.
+
+  P3: |-
+    ### TUGAS
+    Tentukan respons terbaik untuk instruksi di bawah ini.
+
+    ### INSTRUKSI
+    {input_text}
+
+    ### RESPONS A
+    {resp_a}
+
+    ### RESPONS B
+    {resp_b}
+
+    ### ATURAN KETAT
+    - Abaikan urutan kemunculan respons (jangan bias posisi).
+    - Abaikan panjang respons (jangan bias verbosity).
+    - FORMAT JAWABAN WAJIB: Keluarkan hanya karakter A atau B.

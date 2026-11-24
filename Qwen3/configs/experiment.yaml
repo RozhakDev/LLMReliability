@@ -1,0 +1,77 @@
+workspace:
+  default_local_root: "./LLMReliabilityQwen3_local"
+  reserved_folder_names:
+    - "LLMReliability"
+    - "LLMReliabilityEXP"
+  protected_drive_parents:
+    - "MyDrive"
+  subdirs:
+    data_raw: "data/raw"
+    data_processed: "data/processed"
+    results: "results"
+    logs: "logs"
+
+dataset:
+  hf_id: "davidanugraha/IndoPref"
+  split: "test"
+  raw_filename: "indopref_raw.parquet"
+  eval_filename: "indopref_eval_stratified.parquet"
+  required_columns:
+    - "original_id"
+    - "domain"
+    - "input"
+    - "response_1"
+    - "response_2"
+    - "actual_score"
+  text_columns:
+    - "input"
+    - "response_1"
+    - "response_2"
+  min_silver_records: 500
+  min_raw_records: 519
+  sample_size: null
+
+evaluation:
+  random_seed: 42
+  prompts:
+    - "P1"
+    - "P2"
+    - "P3"
+  positions:
+    - "AB"
+    - "BA"
+  bootstrap_iterations: 500
+  alpha: 0.05
+
+inference:
+  max_new_tokens: 10
+  log_interval: 15
+  gc_interval: 25
+  do_sample: false
+  cleanup_cache_after: true
+  min_vram_gb: 70.0
+  min_disk_gb: 70.0
+
+logging:
+  level: "INFO"
+  timezone: "Asia/Jakarta"
+  date_subfolder: true
+  timestamp_format: "%Y%m%d_%H%M%S"
+  filename_pattern: "{run_name}_{timestamp}.log"
+  error_filename_pattern: "{run_name}_{timestamp}_errors.log"
+  separate_error_log: true
+
+visualization:
+  dpi: 300
+  style: "whitegrid"
+  font_scale: 1.15
+  font_family: "DejaVu Sans"
+
+artifacts:
+  output_jsonl: "main_outputs_final.jsonl"
+  metrics_summary_csv: "evaluation_metrics_summary.csv"
+  metrics_summary_parquet: "evaluation_metrics_summary.parquet"
+  detailed_results_parquet: "evaluation_results_detailed.parquet"
+  domain_accuracy_csv: "domain_accuracy_summary.csv"
+  prompt_stability_csv: "prompt_stability_summary.csv"
+  executive_summary_csv: "executive_summary_kpi.csv"

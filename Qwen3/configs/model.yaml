@@ -1,0 +1,7 @@
+model:
+  key: "qwen3_32b"
+  display_name: "Qwen3 32B"
+  hf_id: "Qwen/Qwen3-32B"
+  estimated_vram_gb: 61.0
+  use_enable_thinking_flag: true
+  trust_remote_code: false
