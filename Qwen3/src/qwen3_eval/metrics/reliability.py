@@ -1,40 +1,17 @@
-from dataclasses import dataclass
 import logging
-from pathlib import Path
 from typing import Dict, List, Optional
 
 import pandas as pd
 
 from qwen3_eval.config import ExperimentConfig, ExperimentPaths, ModelSpec
 from qwen3_eval.config.io_utils import atomic_write_via_temp
+from qwen3_eval.metrics.artifacts import EvaluationArtifacts
 from qwen3_eval.metrics.parser import load_and_parse_results
 from qwen3_eval.metrics.statistics import (
     compute_positional_metrics,
     compute_prompt_metrics_table,
     compute_prompt_stability,
 )
-
-
-@dataclass
-class EvaluationArtifacts:
-    model_key: str
-    df_all: pd.DataFrame
-    df_valid: pd.DataFrame
-    invalid_count: int
-    df_metrics_table: pd.DataFrame
-    df_prompt_stability_summary: pd.DataFrame
-    df_executive_summary: pd.DataFrame
-    df_domain_accuracy: pd.DataFrame
-    df_prompt_stab: pd.DataFrame
-    position_consistency: float
-    position_flip: float
-    first_pos_rate: float
-    mcnemar_stat: float
-    mcnemar_pvalue: float
-    is_significant: bool
-    prompt_consistency_3way: float
-    prompt_flip_3way: float
-    results_dir: Path
 
 
 def _build_executive_kpi(

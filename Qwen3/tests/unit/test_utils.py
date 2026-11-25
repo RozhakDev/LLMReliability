@@ -5,7 +5,8 @@ from unittest.mock import patch
 import pytest
 
 from qwen3_eval.config import ExperimentConfig
-from qwen3_eval.utils.gpu import cleanup_hf_model_cache, clear_gpu_memory, purge_other_hf_caches
+from qwen3_eval.utils.cache import cleanup_hf_model_cache, purge_other_hf_caches
+from qwen3_eval.utils.gpu import clear_gpu_memory
 from qwen3_eval.utils.logger import close_logger_handlers, setup_logger
 
 pytestmark = pytest.mark.unit
@@ -96,7 +97,7 @@ def test_cleanup_hf_model_cache_survives_oserror_gracefully(
     repo_dir.mkdir(parents=True)
 
     with (
-        patch("qwen3_eval.utils.gpu.shutil.rmtree", side_effect=PermissionError("locked")),
+        patch("qwen3_eval.utils.cache.shutil.rmtree", side_effect=PermissionError("locked")),
         caplog.at_level(logging.WARNING, logger=test_logger.name),
     ):
         assert cleanup_hf_model_cache("Qwen/Qwen3-32B", cache_dir, test_logger) is False

@@ -1,7 +1,7 @@
 import logging
 import os
 from pathlib import Path
-from typing import Any, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -40,11 +40,35 @@ def _resolve_hf_username(token: Optional[str]) -> str:
     return "unauthenticated"
 
 
+def _build_hf_load_kwargs(
+    cache_dir: Path,
+    trust_remote_code: bool,
+    hf_token: Optional[str],
+    extra: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    kwargs: Dict[str, Any] = {
+        "cache_dir": str(cache_dir),
+        "trust_remote_code": trust_remote_code,
+    }
+    if extra:
+        kwargs.update(extra)
+    if hf_token:
+        kwargs["token"] = hf_token
+    return kwargs
+
+
 def _from_pretrained_16bit(hf_id: str, dtype: torch.dtype, **kwargs: Any) -> Any:
     try:
         return AutoModelForCausalLM.from_pretrained(hf_id, dtype=dtype, **kwargs)
     except TypeError:
         return AutoModelForCausalLM.from_pretrained(hf_id, torch_dtype=dtype, **kwargs)
+
+
+def load_tokenizer_only(spec: ModelSpec, cache_dir: Path) -> Any:
+    hf_logging.disable_progress_bar()
+    hf_token = _resolve_active_hf_token()
+    tok_kwargs = _build_hf_load_kwargs(cache_dir, spec.trust_remote_code, hf_token)
+    return AutoTokenizer.from_pretrained(spec.hf_id, **tok_kwargs)
 
 
 def load_model_and_tokenizer(
@@ -58,21 +82,10 @@ def load_model_and_tokenizer(
     logger.info("model_load_start | model=%s | hf_id=%s | est_vram_gb=%.1f", spec.key, spec.hf_id, spec.estimated_vram_gb)
 
     try:
-        tok_kwargs: dict[str, Any] = {
-            "cache_dir": str(cache_dir),
-            "trust_remote_code": spec.trust_remote_code,
-        }
-        if hf_token:
-            tok_kwargs["token"] = hf_token
+        tok_kwargs = _build_hf_load_kwargs(cache_dir, spec.trust_remote_code, hf_token)
         tokenizer = AutoTokenizer.from_pretrained(spec.hf_id, **tok_kwargs)
 
-        load_kwargs: dict[str, Any] = {
-            "device_map": "auto",
-            "cache_dir": str(cache_dir),
-            "trust_remote_code": spec.trust_remote_code,
-        }
-        if hf_token:
-            load_kwargs["token"] = hf_token
+        load_kwargs = _build_hf_load_kwargs(cache_dir, spec.trust_remote_code, hf_token, extra={"device_map": "auto"})
         logger.info("model_weights_load | cls=AutoModelForCausalLM | dtype=%s | path=%s", dtype, cache_dir)
         model = _from_pretrained_16bit(spec.hf_id, dtype, **load_kwargs)
         model.eval()

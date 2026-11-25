@@ -4,9 +4,11 @@ from typing import Callable
 import pandas as pd
 import pytest
 
-pytest.importorskip("statsmodels")
-
 from qwen3_eval.config import ExperimentConfig, ExperimentPaths, load_model_spec
+from qwen3_eval.metrics import (
+    build_parsed_predictions_preview,
+    build_positional_bias_diagnostics,
+)
 from qwen3_eval.metrics.reliability import evaluate_model
 from qwen3_eval.metrics.statistics import bootstrap_kappa, compute_positional_metrics
 from qwen3_eval.visualization import generate_evaluation_plots
@@ -56,6 +58,15 @@ def test_single_model_evaluation_tables_and_all_12_plots(
     assert len(artifacts.df_all) == 72
     assert artifacts.invalid_count == 5
     assert len(artifacts.df_valid) == 67
+
+    preview_df = build_parsed_predictions_preview(artifacts, n_rows=6)
+    assert len(preview_df) == 6
+    assert {"mapped_choice", "mapped_human", "is_correct"}.issubset(set(preview_df.columns))
+
+    diag_df = build_positional_bias_diagnostics(artifacts, alpha=qwen3_config.evaluation.alpha)
+    diag_map = dict(zip(diag_df["Diagnostic Metric"], diag_df["Value"]))
+    mcnemar_key = f"McNemar Continuity-Corrected (alpha={qwen3_config.evaluation.alpha})"
+    assert f"chi2 = {artifacts.mcnemar_stat:.4f}" in diag_map[mcnemar_key]
 
     art = qwen3_config.artifacts
     for table_file in (

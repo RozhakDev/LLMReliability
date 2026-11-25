@@ -6,7 +6,9 @@ from typing import Callable
 import pandas as pd
 import pytest
 
-from qwen3_eval.inference import build_evaluation_tasks, determine_human_winner, load_processed_combinations
+from qwen3_eval.config.io_utils import read_valid_jsonl_records
+from qwen3_eval.data.labels import map_positional_to_logical, order_candidates, resolve_human_winner
+from qwen3_eval.inference import build_evaluation_tasks, load_processed_combinations
 from qwen3_eval.metrics.parser import load_and_parse_results, parse_decision
 
 pytestmark = pytest.mark.unit
@@ -44,8 +46,8 @@ def test_parse_decision(raw_output: str, expected: str) -> None:
         ({}, "A"),
     ],
 )
-def test_determine_human_winner_priorities(row: dict, expected: str) -> None:
-    assert determine_human_winner(row) == expected
+def test_resolve_human_winner_priorities(row: dict, expected: str) -> None:
+    assert resolve_human_winner(row) == expected
 
 
 def test_build_evaluation_tasks_matrix(make_eval_df: Callable[[int], pd.DataFrame]) -> None:
@@ -107,3 +109,60 @@ def test_load_and_parse_results_rejects_empty_file(tmp_path: Path, test_logger: 
     empty_file.write_text("", encoding="utf-8")
     with pytest.raises(ValueError, match="No valid JSONL records"):
         load_and_parse_results(empty_file, logger=test_logger)
+
+
+@pytest.mark.parametrize(
+    ("position", "expected_pair", "expected_human"),
+    [
+        ("AB", ("R1", "R2"), "A"),
+        ("BA", ("R2", "R1"), "B"),
+    ],
+)
+def test_order_candidates_swaps_responses_and_label(
+    position: str,
+    expected_pair: tuple[str, str],
+    expected_human: str,
+) -> None:
+    row = {"response_1": "R1", "response_2": "R2", "actual_score": "Assistant A"}
+    resp_a, resp_b, label = order_candidates(row, position)
+    assert (resp_a, resp_b) == expected_pair
+    assert label == expected_human
+
+
+@pytest.mark.parametrize(
+    ("choice", "position", "expected"),
+    [
+        ("A", "AB", 1),
+        ("B", "AB", 2),
+        ("A", "BA", 2),
+        ("B", "BA", 1),
+        ("INVALID", "AB", "INVALID"),
+        ("INVALID", "BA", "INVALID"),
+    ],
+)
+def test_map_positional_to_logical(choice: str, position: str, expected: int | str) -> None:
+    assert map_positional_to_logical(choice, position) == expected
+
+
+def test_read_valid_jsonl_records_skips_corrupt_and_missing_fields(
+    tmp_path: Path,
+    test_logger: logging.Logger,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    jsonl_file = tmp_path / "sample.jsonl"
+    jsonl_file.write_text(
+        '{"sample_id": "42", "prompt_id": "P1", "position": "AB"}\n'
+        '{"sample_id": 43}\n'
+        "not-json\n",
+        encoding="utf-8",
+    )
+    with caplog.at_level(logging.WARNING, logger=test_logger.name):
+        records = read_valid_jsonl_records(
+            jsonl_file,
+            frozenset({"sample_id", "prompt_id", "position"}),
+            phase="resume",
+            logger=test_logger,
+        )
+    assert len(records) == 1
+    assert records[0]["sample_id"] == 42
+    assert "jsonl_corrupt_summary | phase=resume | skipped=2" in caplog.text

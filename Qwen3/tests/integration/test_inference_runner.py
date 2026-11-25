@@ -6,8 +6,6 @@ from unittest.mock import patch
 import pandas as pd
 import pytest
 
-pytest.importorskip("transformers")
-
 from qwen3_eval.config import ExperimentConfig, ExperimentPaths, load_model_spec
 from qwen3_eval.inference.runner import run_inference
 from qwen3_eval.inference.tasks import load_processed_combinations

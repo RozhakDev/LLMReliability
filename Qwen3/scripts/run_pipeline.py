@@ -31,14 +31,18 @@ def execute_pipeline(
         raise ValueError(f"max_tasks must be >= 1 when specified, got {max_tasks}.")
 
     boot_logger = setup_logger("qwen3_eval.pipeline")
-    cfg, paths = bootstrap_environment(
-        env_file=env_file,
-        config_path=config_path,
-        project_root=project_root,
-        models_cache_dir=models_cache,
-        authenticate_hf=(stage in {"all", "infer"}),
-        logger=boot_logger,
-    )
+    try:
+        cfg, paths = bootstrap_environment(
+            env_file=env_file,
+            config_path=config_path,
+            project_root=project_root,
+            models_cache_dir=models_cache,
+            authenticate_hf=(stage in {"all", "infer"}),
+            logger=boot_logger,
+        )
+    finally:
+        close_logger_handlers(boot_logger)
+
     spec = load_model_spec(model_config_path=cfg.model_config_path)
     logger = setup_logger(
         f"qwen3_eval.{spec.key}",

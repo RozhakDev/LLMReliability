@@ -1,13 +1,12 @@
 from typing import Any
 
+from qwen3_eval.utils.cache import cleanup_hf_model_cache, purge_other_hf_caches
 from qwen3_eval.utils.logger import close_logger_handlers, setup_logger
 
 _GPU_EXPORTS = frozenset(
     {
-        "cleanup_hf_model_cache",
         "clear_gpu_memory",
         "log_hardware_status",
-        "purge_other_hf_caches",
         "resolve_torch_dtype",
     }
 )

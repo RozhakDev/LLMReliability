@@ -2,12 +2,14 @@ import logging
 from typing import Optional
 
 from qwen3_eval.config import ExperimentConfig, load_experiment_config
-from qwen3_eval.metrics.reliability import EvaluationArtifacts
+from qwen3_eval.metrics.artifacts import EvaluationArtifacts
 from qwen3_eval.visualization.common import configure_matplotlib_theme
-from qwen3_eval.visualization.panels import (
+from qwen3_eval.visualization.eval_plots import (
     plot_accuracy_and_slots,
     plot_parsing_and_domains,
     plot_positional_and_kappa,
+)
+from qwen3_eval.visualization.stability_plots import (
     plot_positional_heatmaps,
     plot_prompt_stability,
 )

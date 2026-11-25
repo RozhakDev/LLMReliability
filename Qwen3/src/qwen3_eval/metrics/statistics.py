@@ -6,6 +6,10 @@ from sklearn.metrics import cohen_kappa_score
 from statsmodels.stats.contingency_tables import mcnemar
 
 from qwen3_eval.config.settings import load_experiment_config
+from qwen3_eval.metrics.contingency import (
+    build_paired_positional_frame,
+    summarize_positional_contingency,
+)
 
 
 def bootstrap_kappa(
@@ -43,19 +47,12 @@ def compute_positional_metrics(
     alpha: Optional[float] = None,
 ) -> Tuple[pd.DataFrame, float, float, float, float, float, bool]:
     resolved_alpha = alpha if alpha is not None else load_experiment_config().evaluation.alpha
-    if df_valid.empty:
-        df_pos = pd.DataFrame(columns=["AB", "BA"])
-    else:
-        df_pos = (
-            df_valid.pivot_table(index=["sample_id", "prompt_id"], columns="position", values="logical_decision", aggfunc="first")
-            .reindex(columns=["AB", "BA"])
-            .dropna()
-        )
+    df_pos = build_paired_positional_frame(df_valid)
+    contingency = summarize_positional_contingency(df_pos)
 
     pos_cons = float((df_pos["AB"] == df_pos["BA"]).mean() * 100) if not df_pos.empty else 0.0
     first_pos_rate = float((df_valid["parsed_decision"] == "A").mean() * 100) if not df_valid.empty else 0.0
-    b = int(sum((df_pos["AB"] == 1) & (df_pos["BA"] == 2))) if not df_pos.empty else 0
-    c = int(sum((df_pos["AB"] == 2) & (df_pos["BA"] == 1))) if not df_pos.empty else 0
+    b, c = contingency.slot_a_bias_b, contingency.slot_b_bias_c
 
     if b + c == 0:
         stat, pval, sig = 0.0, 1.0, False

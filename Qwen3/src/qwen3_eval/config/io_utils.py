@@ -1,7 +1,9 @@
+import json
+import logging
 import os
 from pathlib import Path
 import tempfile
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, FrozenSet, List, Optional
 
 import yaml
 
@@ -42,3 +44,46 @@ def atomic_write_text(path: Path, content: str, encoding: str = "utf-8") -> None
             handle.flush()
 
     atomic_write_via_temp(path, _write)
+
+
+def read_valid_jsonl_records(
+    jsonl_path: Path,
+    required_fields: FrozenSet[str],
+    phase: str,
+    logger: Optional[logging.Logger] = None,
+) -> List[Dict[str, Any]]:
+    records: List[Dict[str, Any]] = []
+    corrupt_lines = 0
+    with open(jsonl_path, "r", encoding="utf-8") as handle:
+        for line_no, line in enumerate(handle, start=1):
+            if not line.strip():
+                continue
+            try:
+                rec = json.loads(line)
+                if not isinstance(rec, dict):
+                    raise TypeError("record must be a JSON object")
+                missing = required_fields.difference(rec.keys())
+                if missing:
+                    raise KeyError(f"missing fields: {sorted(missing)}")
+                if "sample_id" in required_fields:
+                    rec["sample_id"] = int(rec["sample_id"])
+                records.append(rec)
+            except (json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
+                corrupt_lines += 1
+                if logger is not None:
+                    logger.warning(
+                        "jsonl_skip_line | phase=%s | line=%d | path=%s | err=%s",
+                        phase,
+                        line_no,
+                        jsonl_path,
+                        exc,
+                    )
+
+    if corrupt_lines > 0 and logger is not None:
+        logger.warning(
+            "jsonl_corrupt_summary | phase=%s | skipped=%d | path=%s",
+            phase,
+            corrupt_lines,
+            jsonl_path,
+        )
+    return records

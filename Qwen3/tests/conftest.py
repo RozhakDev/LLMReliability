@@ -13,7 +13,8 @@ import torch
 os.environ.setdefault("MPLBACKEND", "Agg")
 
 from qwen3_eval.config import ExperimentConfig, ExperimentPaths, load_experiment_config
-from qwen3_eval.inference.tasks import build_evaluation_tasks, determine_human_winner
+from qwen3_eval.data.labels import resolve_human_winner
+from qwen3_eval.inference.tasks import build_evaluation_tasks
 
 
 class FakeTokenizer:
@@ -141,7 +142,7 @@ def write_synthetic_jsonl() -> Callable[..., None]:
         out_file.parent.mkdir(parents=True, exist_ok=True)
         with open(out_file, "w", encoding="utf-8") as handle:
             for idx, task in enumerate(build_evaluation_tasks(df_eval)):
-                winner = determine_human_winner(task["row"])
+                winner = resolve_human_winner(task["row"])
                 human = winner if task["position"] == "AB" else ("B" if winner == "A" else "A")
                 if invalid_every > 0 and idx % invalid_every == 0:
                     choice = "Tidak yakin"

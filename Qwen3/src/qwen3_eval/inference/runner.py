@@ -9,22 +9,14 @@ import pandas as pd
 import torch
 
 from qwen3_eval.config import ExperimentConfig, ExperimentPaths, ModelSpec
-from qwen3_eval.inference.tasks import (
-    build_evaluation_tasks,
-    determine_human_winner,
-    load_processed_combinations,
-)
+from qwen3_eval.data.labels import order_candidates
+from qwen3_eval.inference.tasks import build_evaluation_tasks, load_processed_combinations
 from qwen3_eval.models.loader import load_model_and_tokenizer
 from qwen3_eval.models.runtime_utils import resolve_input_device, resolve_pad_token_id
 from qwen3_eval.prompts.chat_formatter import prepare_model_inputs
 from qwen3_eval.prompts.templates import format_prompt
-from qwen3_eval.utils.gpu import (
-    cleanup_hf_model_cache,
-    clear_gpu_memory,
-    log_hardware_status,
-    purge_other_hf_caches,
-    resolve_torch_dtype,
-)
+from qwen3_eval.utils.cache import cleanup_hf_model_cache, purge_other_hf_caches
+from qwen3_eval.utils.gpu import clear_gpu_memory, log_hardware_status, resolve_torch_dtype
 
 
 def _run_single_task(
@@ -40,12 +32,7 @@ def _run_single_task(
 ) -> Dict[str, Any]:
     row = task["row"]
     position = str(task["position"])
-    human_winner = determine_human_winner(row)
-    if position == "AB":
-        resp_a, resp_b, current_human = str(row["response_1"]), str(row["response_2"]), human_winner
-    else:
-        resp_a, resp_b = str(row["response_2"]), str(row["response_1"])
-        current_human = "B" if human_winner == "A" else "A"
+    resp_a, resp_b, current_human = order_candidates(row, position)
 
     step_start = time.time()
     user_prompt = format_prompt(str(row["input"]), resp_a, resp_b, str(task["prompt_id"]), cfg.prompts_config_path)
