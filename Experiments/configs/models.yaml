@@ -25,7 +25,7 @@ models:
 
   - key: "aya_expanse_32b"
     display_name: "Aya Expanse 32B"
-    hf_id: "CohereForAI/aya-expanse-32b"
+    hf_id: "CohereLabs/aya-expanse-32b"
     loader_type: "causal_lm"
     estimated_vram_gb: 60.1
     is_primary: false
@@ -49,7 +49,7 @@ models:
 
   - key: "glm_4_32b"
     display_name: "GLM-4 32B 0414"
-    hf_id: "THUDM/GLM-4-32B-0414"
+    hf_id: "zai-org/GLM-4-32B-0414"
     loader_type: "causal_lm"
     estimated_vram_gb: 60.0
     is_primary: false

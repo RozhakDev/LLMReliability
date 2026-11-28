@@ -11,11 +11,6 @@ except ImportError:
     colab_drive = None
     colab_userdata = None
 
-try:
-    from huggingface_hub import login as hf_login
-except ImportError:
-    hf_login = None
-
 from llm_exp.config.paths import ExperimentPaths
 from llm_exp.config.settings import ExperimentConfig, load_experiment_config
 
@@ -50,7 +45,10 @@ def authenticate_huggingface(
         if logger:
             logger.warning("hf_token_missing | impact=gated_models_unavailable")
         return False
-    if hf_login is None:
+
+    try:
+        from huggingface_hub import login as hf_login
+    except ImportError:
         return False
 
     hf_login(token=token, add_to_git_credential=False)
@@ -63,6 +61,8 @@ def configure_hf_cache_env(models_cache_dir: Path, disable_progress_bars: bool =
     os.environ["HF_HOME"] = str(models_cache_dir)
     os.environ["HF_HUB_CACHE"] = str(models_cache_dir / "hub")
     os.environ["HF_DATASETS_CACHE"] = str(models_cache_dir / "datasets")
+    os.environ["HF_XET_CACHE"] = str(models_cache_dir / "xet")
+    os.environ.setdefault("HF_HUB_DISABLE_XET", "1")
     if disable_progress_bars:
         os.environ["HF_HUB_DISABLE_PROGRESS_BARS"] = "1"
 

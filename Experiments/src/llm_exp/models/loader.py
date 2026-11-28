@@ -1,7 +1,7 @@
 import logging
 import os
 from pathlib import Path
-from typing import Any, Tuple
+from typing import Any, Optional, Tuple
 
 import torch
 import transformers
@@ -28,17 +28,49 @@ def _resolve_model_class(loader_type: str) -> Any:
     return AutoModelForCausalLM
 
 
-def _load_tokenizer_or_processor(spec: ModelSpec, cache_dir: Path, logger: logging.Logger) -> Any:
+def _resolve_active_hf_token() -> Optional[str]:
+    try:
+        from huggingface_hub import get_token as hf_get_token
+
+        hub_token = hf_get_token()
+        if hub_token and str(hub_token).strip():
+            return str(hub_token).strip()
+    except Exception:
+        pass
+    env_token = os.environ.get("HF_TOKEN", "").strip()
+    return env_token or None
+
+
+def _resolve_hf_username(token: Optional[str]) -> str:
+    try:
+        from huggingface_hub import whoami as hf_whoami
+
+        info = hf_whoami(token=token) if token else hf_whoami()
+        if isinstance(info, dict) and info.get("name"):
+            return str(info["name"])
+    except Exception:
+        pass
+    return "unauthenticated"
+
+
+def _load_tokenizer_or_processor(
+    spec: ModelSpec,
+    cache_dir: Path,
+    logger: logging.Logger,
+    token: Optional[str] = None,
+) -> Any:
+    common_kwargs: dict[str, Any] = {
+        "cache_dir": str(cache_dir),
+        "trust_remote_code": spec.trust_remote_code,
+    }
+    if token:
+        common_kwargs["token"] = token
     if spec.is_multimodal_processor:
         try:
-            return AutoProcessor.from_pretrained(
-                spec.hf_id, cache_dir=str(cache_dir), trust_remote_code=spec.trust_remote_code
-            )
+            return AutoProcessor.from_pretrained(spec.hf_id, **common_kwargs)
         except Exception as exc:
             logger.warning("processor_fallback | hf_id=%s | to=AutoTokenizer | err=%s", spec.hf_id, exc)
-    return AutoTokenizer.from_pretrained(
-        spec.hf_id, cache_dir=str(cache_dir), trust_remote_code=spec.trust_remote_code
-    )
+    return AutoTokenizer.from_pretrained(spec.hf_id, **common_kwargs)
 
 
 def _from_pretrained_16bit(model_cls: Any, hf_id: str, dtype: torch.dtype, **kwargs: Any) -> Any:
@@ -55,18 +87,21 @@ def load_model_and_processor(
     logger: logging.Logger,
 ) -> Tuple[Any, Any]:
     hf_logging.disable_progress_bar()
-    if spec.requires_gated_access and not os.environ.get("HF_TOKEN", "").strip():
+    hf_token = _resolve_active_hf_token()
+    if spec.requires_gated_access and not hf_token:
         logger.warning("model_gated_warn | hf_id=%s | action=set_hf_token_and_accept_license", spec.hf_id)
     logger.info("model_load_start | model=%s | hf_id=%s | est_vram_gb=%.1f", spec.key, spec.hf_id, spec.estimated_vram_gb)
 
     try:
-        processor_or_tokenizer = _load_tokenizer_or_processor(spec, cache_dir, logger)
+        processor_or_tokenizer = _load_tokenizer_or_processor(spec, cache_dir, logger, token=hf_token)
         model_cls = _resolve_model_class(spec.loader_type)
-        load_kwargs = {
+        load_kwargs: dict[str, Any] = {
             "device_map": "auto",
             "cache_dir": str(cache_dir),
             "trust_remote_code": spec.trust_remote_code,
         }
+        if hf_token:
+            load_kwargs["token"] = hf_token
         logger.info("model_weights_load | cls=%s | dtype=%s | path=%s", model_cls.__name__, dtype, cache_dir)
         try:
             model = _from_pretrained_16bit(model_cls, spec.hf_id, dtype, **load_kwargs)
@@ -80,7 +115,13 @@ def load_model_and_processor(
         configure_deterministic_generation(model, logger=logger)
     except Exception as exc:
         if any(tok in str(exc).lower() for tok in ("401", "403", "gated", "restricted", "access")):
-            logger.error("hf_access_denied | hf_id=%s | url=https://huggingface.co/%s", spec.hf_id, spec.hf_id)
+            hf_user = _resolve_hf_username(hf_token)
+            logger.error(
+                "hf_access_denied | hf_id=%s | hf_user=%s | url=https://huggingface.co/%s | action=accept_license_and_check_gated_token_scope",
+                spec.hf_id,
+                hf_user,
+                spec.hf_id,
+            )
         raise
 
     warn_if_offloaded(model, spec.key, logger)

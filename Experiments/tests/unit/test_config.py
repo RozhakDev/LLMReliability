@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from dotenv import dotenv_values
@@ -6,6 +7,7 @@ import pytest
 from llm_exp.config import (
     ExperimentConfig,
     ExperimentPaths,
+    configure_hf_cache_env,
     get_model_spec,
     list_model_keys,
     load_experiment_config,
@@ -50,7 +52,8 @@ def test_model_registry_loads_default_and_custom_yaml(tmp_path: Path) -> None:
     ]
     registry = load_model_registry()
     assert get_model_spec("qwen3_32b").is_primary is True
-    assert registry["glm_4_32b"].hf_id == "THUDM/GLM-4-32B-0414"
+    assert registry["aya_expanse_32b"].hf_id == "CohereLabs/aya-expanse-32b"
+    assert registry["glm_4_32b"].hf_id == "zai-org/GLM-4-32B-0414"
     assert registry["mistral_small_3_1_24b"].loader_type == "mistral3"
     assert registry["gemma3_27b_goto"].loader_type == "gemma3"
 
@@ -90,3 +93,16 @@ def test_experiment_paths_creates_base_dirs(exp_paths: ExperimentPaths) -> None:
     assert exp_paths.results_root_dir.is_dir()
     assert exp_paths.comparison_dir.is_dir()
     assert exp_paths.logs_dir.is_dir()
+
+
+def test_configure_hf_cache_env_sets_xet_guards(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("HF_HUB_DISABLE_XET", raising=False)
+    monkeypatch.delenv("HF_XET_CACHE", raising=False)
+    cache_dir = tmp_path / "models_cache"
+
+    configure_hf_cache_env(cache_dir, disable_progress_bars=True)
+
+    assert os.environ["HF_HOME"] == str(cache_dir)
+    assert os.environ["HF_HUB_CACHE"] == str(cache_dir / "hub")
+    assert os.environ["HF_XET_CACHE"] == str(cache_dir / "xet")
+    assert os.environ["HF_HUB_DISABLE_XET"] == "1"

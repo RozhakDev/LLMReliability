@@ -18,7 +18,13 @@ from llm_exp.models.loader import load_model_and_processor
 from llm_exp.models.runtime_utils import resolve_input_device, resolve_pad_token_id
 from llm_exp.prompts.chat_formatter import prepare_model_inputs
 from llm_exp.prompts.templates import format_prompt
-from llm_exp.utils.gpu import cleanup_hf_model_cache, clear_gpu_memory, log_hardware_status, resolve_torch_dtype
+from llm_exp.utils.gpu import (
+    cleanup_hf_model_cache,
+    clear_gpu_memory,
+    log_hardware_status,
+    purge_other_hf_caches,
+    resolve_torch_dtype,
+)
 
 
 def _decode_tokens(processor_or_tokenizer: Any, gen_tokens: torch.Tensor) -> str:
@@ -110,6 +116,8 @@ def run_model_inference(
         logger.info("infer_skip | model=%s | reason=already_done", spec.key)
         return out_file
 
+    if do_cleanup:
+        purge_other_hf_caches(spec.hf_id, paths.models_cache_dir, logger)
     log_hardware_status(logger, paths.models_cache_dir, inf.min_vram_gb, inf.min_disk_gb)
     dtype = resolve_torch_dtype(logger)
 

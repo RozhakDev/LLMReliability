@@ -1,5 +1,6 @@
 from datetime import datetime
 import logging
+import os
 from pathlib import Path
 import sys
 from typing import Optional
@@ -43,7 +44,7 @@ def setup_logger(
     resolved_level = _parse_level(
         level if level is not None else (logging_config.level if logging_config else logging.INFO)
     )
-    tz_name = logging_config.timezone if logging_config else ""
+    tz_name = logging_config.timezone if logging_config else os.environ.get("LOG_TIMEZONE", "").strip()
     tz = _resolve_tz(tz_name)
     now = datetime.now(tz=tz)
 
