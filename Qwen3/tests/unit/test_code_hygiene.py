@@ -31,13 +31,41 @@ def test_src_package_has_no_hardcoded_paths_or_models(project_dir: Path) -> None
         "aya-expanse",
         "GLM-4",
     )
-    offenders = [
-        (str(py_file.relative_to(project_dir)), token)
-        for py_file in sorted((project_dir / "src" / "qwen3_eval").rglob("*.py"))
-        for token in forbidden
-        if token.lower() in py_file.read_text(encoding="utf-8").lower()
-    ]
-    assert not offenders, f"Hardcoded or non-Qwen3 tokens found: {offenders}"
+    config_driven_params = {"prompts", "positions", "alpha", "dpi"}
+    offenders = []
+    for py_file in sorted((project_dir / "src" / "qwen3_eval").rglob("*.py")):
+        rel = py_file.relative_to(project_dir).as_posix()
+        text = py_file.read_text(encoding="utf-8")
+        low = text.lower()
+        for token in forbidden:
+            if token.lower() in low:
+                offenders.append((rel, token))
+
+        tree = ast.parse(text, filename=rel)
+        for node in ast.walk(tree):
+            if (
+                isinstance(node, ast.Constant)
+                and isinstance(node.value, str)
+                and "indopref" in node.value.lower()
+                and not node.value.startswith("qwen3_eval.")
+            ):
+                offenders.append((rel, f"hardcoded_dataset_name:{node.lineno}"))
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                pos_args = node.args.posonlyargs + node.args.args
+                for arg, default in zip(reversed(pos_args), reversed(node.args.defaults)):
+                    if arg.arg in config_driven_params and not (
+                        isinstance(default, ast.Constant) and default.value is None
+                    ):
+                        offenders.append((rel, f"hardcoded_default:{node.name}.{arg.arg}"))
+                for arg, kw_default in zip(node.args.kwonlyargs, node.args.kw_defaults):
+                    if (
+                        arg.arg in config_driven_params
+                        and kw_default is not None
+                        and not (isinstance(kw_default, ast.Constant) and kw_default.value is None)
+                    ):
+                        offenders.append((rel, f"hardcoded_default:{node.name}.{arg.arg}"))
+
+    assert not offenders, f"Hardcoded config, path, or model literals found: {offenders}"
 
 
 def test_no_unused_imports_docstrings_or_hash_comments(project_dir: Path) -> None:
@@ -254,8 +282,9 @@ def test_config_and_logger_imports_do_not_eagerly_load_heavy_ml_libs(project_dir
     code = (
         f"import sys; sys.path.insert(0, {src_dir!r}); "
         "import qwen3_eval.config; import qwen3_eval.utils.logger; "
-        "import qwen3_eval.utils.cache; import qwen3_eval.data.labels; "
-        "import qwen3_eval.metrics.contingency; "
+        "import qwen3_eval.utils.cache; import qwen3_eval.utils.lazy; "
+        "import qwen3_eval.data.labels; import qwen3_eval.metrics.contingency; "
+        "import qwen3_eval.visualization.display; "
         "heavy = [m for m in ('torch', 'transformers', 'statsmodels') if m in sys.modules]; "
         "assert not heavy, f'Unexpected heavy imports: {heavy}'"
     )

@@ -2,14 +2,45 @@ from typing import Dict, List, Optional, Tuple
 
 import pandas as pd
 
-from qwen3_eval.config import ExperimentConfig, ExperimentPaths
+from qwen3_eval.config import DatasetConfig, ExperimentConfig, ExperimentPaths, load_experiment_config
 from qwen3_eval.data.labels import resolve_human_winner
+
+_DOMAIN_DIST_COLUMNS = [
+    "Domain",
+    "Jumlah Sampel",
+    "Persentase (%)",
+    "Assistant A (%)",
+    "Assistant B (%)",
+]
 
 
 def _resolve_winner_series(df_eval: pd.DataFrame) -> pd.Series:
     if df_eval.empty:
         return pd.Series(dtype=str)
     return df_eval.apply(resolve_human_winner, axis=1)
+
+
+def compute_domain_stats(
+    df_eval: pd.DataFrame,
+    ascending: bool = False,
+) -> pd.DataFrame:
+    if df_eval.empty or "domain" not in df_eval.columns:
+        return pd.DataFrame(columns=["domain", "count", "share_pct", "a_pct", "b_pct"])
+
+    total = len(df_eval)
+    working = df_eval.assign(_side=_resolve_winner_series(df_eval))
+    stats = (
+        working.groupby("domain", as_index=False)
+        .agg(
+            count=("_side", "size"),
+            a_pct=("_side", lambda s: float((s == "A").mean() * 100.0)),
+            b_pct=("_side", lambda s: float((s == "B").mean() * 100.0)),
+        )
+        .sort_values(["count", "domain"], ascending=[ascending, not ascending])
+        .reset_index(drop=True)
+    )
+    stats["share_pct"] = (stats["count"] / total) * 100.0
+    return stats[["domain", "count", "share_pct", "a_pct", "b_pct"]]
 
 
 def build_preprocessing_summary(
@@ -30,7 +61,9 @@ def build_preprocessing_summary(
 
     eval_rows = len(df_eval)
     removed_dups = (raw_rows - eval_rows) if (raw_rows is not None and raw_rows >= eval_rows) else None
-    total_tasks = eval_rows * len(cfg.evaluation.prompts) * len(cfg.evaluation.positions)
+    n_prompts = len(cfg.evaluation.prompts)
+    n_positions = len(cfg.evaluation.positions)
+    total_tasks = eval_rows * n_prompts * n_positions
     present_req = [c for c in req_cols if c in df_eval.columns]
     null_count = int(df_eval[present_req].isnull().sum().sum()) if present_req else 0
     empty_text_count = int(sum((df_eval[col].astype(str).str.strip() == "").sum() for col in txt_cols))
@@ -51,10 +84,19 @@ def build_preprocessing_summary(
             {"Stage / Check": "Silver Unique Prompts (Cohort)", "Value": f"{eval_rows:,} samples"},
             {
                 "Stage / Check": "Evaluation Task Matrix",
-                "Value": f"{total_tasks:,} inferences ({len(cfg.evaluation.prompts)} prompts x {len(cfg.evaluation.positions)} positions)",
+                "Value": f"{total_tasks:,} inferences ({n_prompts} prompts x {n_positions} positions)",
             },
-            {"Stage / Check": "Schema Integrity", "Value": f"{len(present_req)}/{len(req_cols)} required columns | nulls={null_count} | empty_text={empty_text_count}"},
-            {"Stage / Check": "Human Preference Balance", "Value": f"Assistant A: {count_a} ({pct_a:.2f}%) | Assistant B: {count_b} ({pct_b:.2f}%)"},
+            {
+                "Stage / Check": "Schema Integrity",
+                "Value": (
+                    f"{len(present_req)}/{len(req_cols)} required columns"
+                    f" | nulls={null_count} | empty_text={empty_text_count}"
+                ),
+            },
+            {
+                "Stage / Check": "Human Preference Balance",
+                "Value": f"Assistant A: {count_a} ({pct_a:.2f}%) | Assistant B: {count_b} ({pct_b:.2f}%)",
+            },
             {"Stage / Check": "DataFrame Memory Footprint", "Value": f"{mem_kb:.1f} KB"},
         ]
     )
@@ -62,43 +104,35 @@ def build_preprocessing_summary(
 
 
 def build_domain_distribution(df_eval: pd.DataFrame) -> pd.DataFrame:
-    if df_eval.empty or "domain" not in df_eval.columns:
-        return pd.DataFrame(columns=["Domain", "Jumlah Sampel", "Persentase (%)", "Assistant A (%)", "Assistant B (%)"])
+    stats = compute_domain_stats(df_eval, ascending=False)
+    if stats.empty:
+        return pd.DataFrame(columns=_DOMAIN_DIST_COLUMNS)
 
-    total = len(df_eval)
-    working = df_eval.assign(_side=_resolve_winner_series(df_eval))
-    grouped = (
-        working.groupby("domain", as_index=False)
-        .agg(
-            samples=("original_id", "count"),
-            a_rate=("_side", lambda s: float((s == "A").mean() * 100.0)),
-            b_rate=("_side", lambda s: float((s == "B").mean() * 100.0)),
-        )
-        .sort_values(["samples", "domain"], ascending=[False, True])
-        .reset_index(drop=True)
-    )
-    grouped["pct"] = (grouped["samples"] / total * 100.0).round(2)
-    grouped["a_rate"] = grouped["a_rate"].round(2)
-    grouped["b_rate"] = grouped["b_rate"].round(2)
-    return grouped.rename(
+    formatted = stats.copy()
+    formatted["share_pct"] = formatted["share_pct"].round(2)
+    formatted["a_pct"] = formatted["a_pct"].round(2)
+    formatted["b_pct"] = formatted["b_pct"].round(2)
+    return formatted.rename(
         columns={
             "domain": "Domain",
-            "samples": "Jumlah Sampel",
-            "pct": "Persentase (%)",
-            "a_rate": "Assistant A (%)",
-            "b_rate": "Assistant B (%)",
+            "count": "Jumlah Sampel",
+            "share_pct": "Persentase (%)",
+            "a_pct": "Assistant A (%)",
+            "b_pct": "Assistant B (%)",
         }
-    )[["Domain", "Jumlah Sampel", "Persentase (%)", "Assistant A (%)", "Assistant B (%)"]]
+    )[_DOMAIN_DIST_COLUMNS]
 
 
 def build_sample_overview_table(
     df_eval: pd.DataFrame,
     n_rows: int = 3,
     max_chars: int = 110,
+    dataset_config: Optional[DatasetConfig] = None,
 ) -> pd.DataFrame:
-    cols = [c for c in ("original_id", "domain", "input", "response_1", "response_2", "actual_score") if c in df_eval.columns]
+    ds_cfg = dataset_config or load_experiment_config().dataset
+    cols = [c for c in ds_cfg.required_columns if c in df_eval.columns]
     preview = df_eval[cols].head(max(n_rows, 1)).copy()
-    for text_col in ("input", "response_1", "response_2"):
+    for text_col in ds_cfg.text_columns:
         if text_col in preview.columns:
             preview[text_col] = preview[text_col].astype(str).map(
                 lambda s: s.replace("\n", " ")[:max_chars] + ("..." if len(s) > max_chars else "")
@@ -122,10 +156,26 @@ def build_sample_detail_table(df_eval: pd.DataFrame, row_index: int = 0) -> Tupl
         [
             {"Atribut": "original_id", "Deskripsi": "Kode pengenal instruksi asal", "Nilai": str(row["original_id"])},
             {"Atribut": "domain", "Deskripsi": "Kategori domain topik", "Nilai": str(row["domain"])},
-            {"Atribut": "actual_score", "Deskripsi": "Label acuan preferensi manusia", "Nilai": f"{raw_score} | {winner} ({winner_desc})"},
-            {"Atribut": "input", "Deskripsi": "Panjang teks instruksi masukan", "Nilai": f"{len(input_txt):,} karakter"},
-            {"Atribut": "response_1", "Deskripsi": "Panjang teks jawaban pertama", "Nilai": f"{len(resp1_txt):,} karakter"},
-            {"Atribut": "response_2", "Deskripsi": "Panjang teks jawaban kedua", "Nilai": f"{len(resp2_txt):,} karakter"},
+            {
+                "Atribut": "actual_score",
+                "Deskripsi": "Label acuan preferensi manusia",
+                "Nilai": f"{raw_score} | {winner} ({winner_desc})",
+            },
+            {
+                "Atribut": "input",
+                "Deskripsi": "Panjang teks instruksi masukan",
+                "Nilai": f"{len(input_txt):,} karakter",
+            },
+            {
+                "Atribut": "response_1",
+                "Deskripsi": "Panjang teks jawaban pertama",
+                "Nilai": f"{len(resp1_txt):,} karakter",
+            },
+            {
+                "Atribut": "response_2",
+                "Deskripsi": "Panjang teks jawaban kedua",
+                "Nilai": f"{len(resp2_txt):,} karakter",
+            },
         ]
     )
     content_df = pd.DataFrame(

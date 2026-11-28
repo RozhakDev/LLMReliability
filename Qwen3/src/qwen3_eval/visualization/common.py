@@ -99,9 +99,10 @@ def export_panels(
     names: List[str],
     results_dir: Path,
     logger: logging.Logger,
-    dpi: int = 300,
+    dpi: Optional[int] = None,
     show_inline: bool = False,
 ) -> None:
+    resolved_dpi = dpi if dpi is not None else load_experiment_config().visualization.dpi
     try:
         results_dir.mkdir(parents=True, exist_ok=True)
         fig.tight_layout()
@@ -114,7 +115,7 @@ def export_panels(
                 ax.set_visible(ax is target_ax)
 
             full_base = results_dir / base_name
-            fig.savefig(f"{full_base}.png", dpi=dpi, bbox_inches="tight")
+            fig.savefig(f"{full_base}.png", dpi=resolved_dpi, bbox_inches="tight")
             fig.savefig(f"{full_base}.svg", format="svg", bbox_inches="tight")
             target_ax.set_title(orig_title, fontweight="bold", pad=10)
             logger.info("fig_saved | name=%s | formats=png,svg | path=%s", base_name, results_dir)

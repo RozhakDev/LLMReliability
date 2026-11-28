@@ -1,7 +1,8 @@
-from typing import Dict, List, Protocol
+from typing import Dict, List, Optional, Protocol
 
 import pandas as pd
 
+from qwen3_eval.config.settings import load_experiment_config
 from qwen3_eval.metrics.contingency import (
     build_paired_positional_frame,
     summarize_positional_contingency,
@@ -76,8 +77,9 @@ def build_parsed_predictions_preview(
 
 def build_positional_bias_diagnostics(
     artifacts: ArtifactsProtocol,
-    alpha: float = 0.05,
+    alpha: Optional[float] = None,
 ) -> pd.DataFrame:
+    resolved_alpha = alpha if alpha is not None else load_experiment_config().evaluation.alpha
     total_all = len(artifacts.df_all)
     valid_n = len(artifacts.df_valid)
     invalid_pct = (artifacts.invalid_count / total_all * 100.0) if total_all > 0 else 0.0
@@ -92,15 +94,25 @@ def build_positional_bias_diagnostics(
     rows: List[Dict[str, str]] = [
         {
             "Diagnostic Metric": "Format Parsing Validity",
-            "Value": f"{valid_n:,} valid / {total_all:,} total (invalid={artifacts.invalid_count}, {invalid_pct:.2f}%)",
+            "Value": (
+                f"{valid_n:,} valid / {total_all:,} total"
+                f" (invalid={artifacts.invalid_count}, {invalid_pct:.2f}%)"
+            ),
         },
         {
             "Diagnostic Metric": "Paired AB-BA Comparisons",
-            "Value": f"{contingency.n_pairs:,} pairs (Consistent Resp. 1={contingency.consistent_1:,}, Consistent Resp. 2={contingency.consistent_2:,})",
+            "Value": (
+                f"{contingency.n_pairs:,} pairs"
+                f" (Consistent Resp. 1={contingency.consistent_1:,},"
+                f" Consistent Resp. 2={contingency.consistent_2:,})"
+            ),
         },
         {
             "Diagnostic Metric": "Discordant Pairs (Position Flip)",
-            "Value": f"Slot-A Bias b (AB=1, BA=2): {contingency.slot_a_bias_b:,} | Slot-B Bias c (AB=2, BA=1): {contingency.slot_b_bias_c:,}",
+            "Value": (
+                f"Slot-A Bias b (AB=1, BA=2): {contingency.slot_a_bias_b:,}"
+                f" | Slot-B Bias c (AB=2, BA=1): {contingency.slot_b_bias_c:,}"
+            ),
         },
         {
             "Diagnostic Metric": "First-Position Preference Rate",
@@ -108,10 +120,13 @@ def build_positional_bias_diagnostics(
         },
         {
             "Diagnostic Metric": "Position Consistency and Flip Rate",
-            "Value": f"Consistency = {artifacts.position_consistency:.2f}% | Flip Rate = {artifacts.position_flip:.2f}%",
+            "Value": (
+                f"Consistency = {artifacts.position_consistency:.2f}%"
+                f" | Flip Rate = {artifacts.position_flip:.2f}%"
+            ),
         },
         {
-            "Diagnostic Metric": f"McNemar Continuity-Corrected (alpha={alpha})",
+            "Diagnostic Metric": f"McNemar Continuity-Corrected (alpha={resolved_alpha})",
             "Value": f"chi2 = {artifacts.mcnemar_stat:.4f} | p = {artifacts.mcnemar_pvalue:.5e} ({conclusion})",
         },
     ]
@@ -123,7 +138,10 @@ def build_positional_bias_diagnostics(
         rows.append(
             {
                 "Diagnostic Metric": "Inference Runtime Profile",
-                "Value": f"Total = {total_min:.1f} min | Mean Latency = {mean_rt:.2f}s | Mean TPS = {mean_tps:.2f} tok/s",
+                "Value": (
+                    f"Total = {total_min:.1f} min | Mean Latency = {mean_rt:.2f}s"
+                    f" | Mean TPS = {mean_tps:.2f} tok/s"
+                ),
             }
         )
 

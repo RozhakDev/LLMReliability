@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Dict
 
 from qwen3_eval.metrics.artifacts import EvaluationArtifacts
 from qwen3_eval.metrics.contingency import (
@@ -11,16 +11,15 @@ from qwen3_eval.metrics.inspection import (
     build_positional_bias_diagnostics,
 )
 from qwen3_eval.metrics.parser import load_and_parse_results, parse_decision
+from qwen3_eval.utils.lazy import resolve_lazy_export
 
-_RELIABILITY_EXPORTS = frozenset({"evaluate_model"})
+_LAZY_EXPORTS: Dict[str, str] = {
+    "evaluate_model": "qwen3_eval.metrics.reliability",
+}
 
 
 def __getattr__(name: str) -> Any:
-    if name in _RELIABILITY_EXPORTS:
-        from qwen3_eval.metrics import reliability
-
-        return getattr(reliability, name)
-    raise AttributeError(f"module 'qwen3_eval.metrics' has no attribute {name!r}")
+    return resolve_lazy_export(__name__, name, _LAZY_EXPORTS)
 
 
 __all__ = [

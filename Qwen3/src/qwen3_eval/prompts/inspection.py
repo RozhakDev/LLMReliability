@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Optional, Sequence, Union
 import pandas as pd
 
 from qwen3_eval.config.schemas import ModelSpec
+from qwen3_eval.config.settings import load_experiment_config
 from qwen3_eval.data.labels import order_candidates
 from qwen3_eval.prompts.chat_formatter import build_chat_messages, format_chat_text
 from qwen3_eval.prompts.templates import format_prompt
@@ -27,14 +28,22 @@ def build_prompt_inspection_table(
     row_data: Any,
     spec: ModelSpec,
     tokenizer: Optional[Any] = None,
-    prompts: Sequence[str] = ("P1", "P2", "P3"),
-    positions: Sequence[str] = ("AB", "BA"),
+    prompts: Optional[Sequence[str]] = None,
+    positions: Optional[Sequence[str]] = None,
     prompts_config_path: Optional[Union[str, Path]] = None,
 ) -> pd.DataFrame:
+    if prompts is None or positions is None:
+        ev = load_experiment_config().evaluation
+        resolved_prompts = prompts if prompts is not None else ev.prompts
+        resolved_positions = positions if positions is not None else ev.positions
+    else:
+        resolved_prompts = prompts
+        resolved_positions = positions
+
     input_txt = str(row_data["input"])
     records: List[Dict[str, object]] = []
-    for p_id in prompts:
-        for pos in positions:
+    for p_id in resolved_prompts:
+        for pos in resolved_positions:
             pos_str = str(pos)
             resp_a, resp_b, pos_target = order_candidates(row_data, pos_str)
             slot_a_src, slot_b_src = (
@@ -81,12 +90,13 @@ def build_chat_template_preview_table(
     row_data: Any,
     prompt_id: str,
     spec: ModelSpec,
-    positions: Sequence[str] = ("AB", "BA"),
+    positions: Optional[Sequence[str]] = None,
     tokenizer: Optional[Any] = None,
     prompts_config_path: Optional[Union[str, Path]] = None,
 ) -> pd.DataFrame:
+    resolved_positions = positions if positions is not None else load_experiment_config().evaluation.positions
     rows: List[Dict[str, object]] = []
-    for pos in positions:
+    for pos in resolved_positions:
         pos_str = str(pos)
         rendered = render_chat_inspection_text(
             row_data=row_data,

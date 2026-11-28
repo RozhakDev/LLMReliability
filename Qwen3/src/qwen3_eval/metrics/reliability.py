@@ -16,6 +16,7 @@ from qwen3_eval.metrics.statistics import (
 
 def _build_executive_kpi(
     spec: ModelSpec,
+    dataset_name: str,
     cohort_size: int,
     valid_count: int,
     pos_cons: float,
@@ -31,7 +32,7 @@ def _build_executive_kpi(
 ) -> pd.DataFrame:
     rows: List[Dict[str, str]] = [
         {"Metric Category": "Model Evaluator", "Specification": f"{spec.display_name} ({spec.hf_id})", "Value": "16-bit BF16"},
-        {"Metric Category": "Cohort Population", "Specification": "IndoPref Sensus Prompt Unik", "Value": f"{cohort_size} samples ({valid_count:,} evaluations)"},
+        {"Metric Category": "Cohort Population", "Specification": f"{dataset_name} Sensus Prompt Unik", "Value": f"{cohort_size} samples ({valid_count:,} evaluations)"},
         {"Metric Category": "Positional Reliability", "Specification": "Consistency (AB == BA)", "Value": f"{pos_cons:.2f}%"},
         {"Metric Category": "Positional Reliability", "Specification": "Preference Flip Rate", "Value": f"{pos_flip:.2f}%"},
         {"Metric Category": "Positional Bias Test", "Specification": f"McNemar Test (alpha={alpha})", "Value": f"p = {mcnemar_p:.2e} ({'Significant' if is_sig else 'Not Significant'})"},
@@ -98,8 +99,10 @@ def evaluate_model(
         atomic_write_via_temp(results_dir / art.prompt_stability_csv, lambda tmp: df_stab_sum.to_csv(tmp, index=False))
 
     cohort_size = len(df_eval) if df_eval is not None else int(df_all["sample_id"].nunique())
+    dataset_name = cfg.dataset.hf_id.split("/")[-1]
     df_kpi = _build_executive_kpi(
         spec,
+        dataset_name,
         cohort_size,
         len(df_valid),
         pos_cons,

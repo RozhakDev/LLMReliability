@@ -1,19 +1,18 @@
-from typing import Any
+from typing import Any, Dict
 
 from qwen3_eval.inference.tasks import (
     build_evaluation_tasks,
     load_processed_combinations,
 )
+from qwen3_eval.utils.lazy import resolve_lazy_export
 
-_RUNNER_EXPORTS = frozenset({"run_inference"})
+_LAZY_EXPORTS: Dict[str, str] = {
+    "run_inference": "qwen3_eval.inference.runner",
+}
 
 
 def __getattr__(name: str) -> Any:
-    if name in _RUNNER_EXPORTS:
-        from qwen3_eval.inference import runner
-
-        return getattr(runner, name)
-    raise AttributeError(f"module 'qwen3_eval.inference' has no attribute {name!r}")
+    return resolve_lazy_export(__name__, name, _LAZY_EXPORTS)
 
 
 __all__ = [

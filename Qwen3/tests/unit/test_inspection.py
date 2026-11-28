@@ -36,7 +36,10 @@ class _ListTokenizer:
         add_generation_prompt: bool = True,
         enable_thinking: Any = None,
     ) -> str:
-        return f"<|im_start|>system\n{messages[0]['content']}\n<|im_start|>user\n{messages[1]['content']}\n<think>\n\n</think>\n"
+        return (
+            f"<|im_start|>system\n{messages[0]['content']}\n"
+            f"<|im_start|>user\n{messages[1]['content']}\n<think>\n\n</think>\n"
+        )
 
     def __call__(self, text: str, add_special_tokens: bool = False) -> Dict[str, Any]:
         return {"input_ids": [101, 102, 103, 104]}
@@ -280,3 +283,39 @@ def test_paired_positional_contingency_counts() -> None:
     assert summary.consistent_2 == 1
     assert summary.slot_a_bias_b == 1
     assert summary.slot_b_bias_c == 1
+
+
+def test_notebook_display_configuration_and_multiline_html() -> None:
+    from qwen3_eval.visualization import build_multiline_html_table, configure_notebook_display
+
+    prev_colwidth = pd.get_option("display.max_colwidth")
+    prev_cols = pd.get_option("display.max_columns")
+    try:
+        configure_notebook_display()
+        assert pd.get_option("display.max_colwidth") is None
+        assert pd.get_option("display.max_columns") is None
+    finally:
+        pd.set_option("display.max_colwidth", prev_colwidth)
+        pd.set_option("display.max_columns", prev_cols)
+
+    sample_df = pd.DataFrame(
+        [{"Kondisi": "P1_AB", "Chat Template": "<|im_start|>user\nBaris 1\n\n<think>\n\n</think>"}]
+    )
+    rendered = build_multiline_html_table(sample_df, monospace_columns=("Chat Template",))
+    assert "white-space:pre-wrap" in rendered
+    assert "monospace" in rendered
+    assert "&lt;|im_start|&gt;user\nBaris 1\n\n&lt;think&gt;\n\n&lt;/think&gt;" in rendered
+
+
+def test_resolve_lazy_export_valid_and_missing_attr() -> None:
+    from qwen3_eval.utils.lazy import resolve_lazy_export
+
+    resolved = resolve_lazy_export(
+        "qwen3_eval.data",
+        "resolve_human_winner",
+        {"resolve_human_winner": "qwen3_eval.data.labels"},
+    )
+    assert callable(resolved)
+
+    with pytest.raises(AttributeError, match="has no attribute 'nonexistent'"):
+        resolve_lazy_export("qwen3_eval.data", "nonexistent", {})
